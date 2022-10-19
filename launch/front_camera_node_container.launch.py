@@ -33,8 +33,6 @@ from launch import LaunchContext
 import yaml
 
 
-
-
 def generate_launch_description():
     launch_arguments = []
 
@@ -58,7 +56,6 @@ def generate_launch_description():
             result[x] = LaunchConfiguration(x)
         return result
 
-
     container = ComposableNodeContainer(
         name="camera_node_right",
         namespace="/perception/object_detection",
@@ -69,17 +66,17 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_right",
-                parameters=[{ "camera_name": camera_yaml_param['camera_name'],
-                              "frame_id": camera_yaml_param['frame_id'],
-                              "pixel_format": camera_yaml_param['pixel_format'],
-                              "serial_no": camera_yaml_param['serial_no'],
-                              "fps": camera_yaml_param['fps'],
-                              "width": camera_yaml_param['width'],
-                              "height": camera_yaml_param['height'],
-                              "resize_image": camera_yaml_param['resize_image'],
-                              "camera_info_url": camera_yaml_param['camera_info_url'],
+                parameters=[{"camera_name": camera_yaml_param['camera_name'],
+                             "frame_id": camera_yaml_param['frame_id'],
+                             "pixel_format": camera_yaml_param['pixel_format'],
+                             "serial_no": camera_yaml_param['serial_no'],
+                             "fps": camera_yaml_param['fps'],
+                             "width": camera_yaml_param['width'],
+                             "height": camera_yaml_param['height'],
+                             "resize_image": camera_yaml_param['resize_image'],
+                             "camera_info_url": camera_yaml_param['camera_info_url'],
 
-                              }],
+                             }],
                 remappings=[
                 ],
                 extra_arguments=[

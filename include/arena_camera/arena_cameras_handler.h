@@ -7,7 +7,8 @@
 
 #include <vector>
 
-class ArenaCamerasHandler {
+class ArenaCamerasHandler
+{
 public:
   explicit ArenaCamerasHandler();
 
@@ -15,8 +16,7 @@ public:
 
   void init_arena();
 
-  void
-  create_cameras_from_settings(CameraSetting &camera_settings);
+  void create_cameras_from_settings(CameraSetting & camera_settings);
 
   void set_image_callback(ArenaCamera::ImageCallbackFunction callback);
 
@@ -24,16 +24,11 @@ public:
 
   void stop_stream();
 
-
 private:
+  ArenaCamera * m_cameras;
 
-  ArenaCamera* m_cameras;
-
-  Arena::ISystem *m_p_system;
-  Arena::IDevice *m_device;
-
-
-
+  Arena::ISystem * m_p_system;
+  Arena::IDevice * m_device;
 };
 
-#endif // BUILD_CAMERAS_WRAPPER_H
+#endif  // BUILD_CAMERAS_WRAPPER_H
