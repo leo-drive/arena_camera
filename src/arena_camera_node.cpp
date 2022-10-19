@@ -1,7 +1,6 @@
 #include "arena_camera/arena_camera_node.h"
 
 #include "arena_camera/camera_settings.h"
-#include "arena_camera/time_keeper_sequential.hpp"
 
 #include <opencv2/opencv.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
@@ -61,22 +60,16 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
 
   header.frame_id = m_frame_id;
 
-  TimeKeeperSequental time_keeper("publish_image");
-  time_keeper.AddTimePoint("start");
-
   try {
-    //
     cv_bridge::CvImage img_bridge =
       cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, image);
     (void)img_bridge;
-    //      img_bridge.toCompressedImageMsg(img_msg);
     img_bridge.toImageMsg(img_msg);
 
   } catch (...) {
     throw std::runtime_error("Runtime error, publish_image.");
   }
 
-  time_keeper.AddTimePoint("img_bridge");
 
   m_publisher->publish(std::move(img_msg));
 
@@ -85,10 +78,7 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
     ci->header = img_msg.header;
     m_camera_info_publisher->publish(std::move(ci));
   }
-  time_keeper.AddTimePoint("publish");
 
-  // log with rclcpp
-  RCLCPP_DEBUG(this->get_logger(), "publish_image: %s", time_keeper.StrLog().c_str());
 }
 
 void ArenaCameraNode::init_camera_info(std::string camera_name, std::string camera_info_url)
