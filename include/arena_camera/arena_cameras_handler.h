@@ -14,8 +14,6 @@ public:
 
   ~ArenaCamerasHandler();
 
-  void init_arena();
-
   void create_cameras_from_settings(CameraSetting & camera_settings);
 
   void set_image_callback(ArenaCamera::ImageCallbackFunction callback);
@@ -24,11 +22,16 @@ public:
 
   void stop_stream();
 
+  void set_fps(uint32_t fps);
+
 private:
+
   ArenaCamera * m_cameras;
 
   Arena::ISystem * m_p_system;
+
   Arena::IDevice * m_device;
+
 };
 
 #endif  // BUILD_CAMERAS_WRAPPER_H

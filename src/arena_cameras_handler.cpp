@@ -35,19 +35,28 @@ void ArenaCamerasHandler::set_image_callback(ArenaCamera::ImageCallbackFunction 
   this->m_cameras->set_on_image_callback(callback);
 }
 
-void ArenaCamerasHandler::start_stream()
-{
-  //    this->m_cameras.start_stream();
-  this->m_cameras->acquisition();
-  ;
-}
+void ArenaCamerasHandler::start_stream() { this->m_cameras->acquisition(); }
 
 void ArenaCamerasHandler::stop_stream() { this->m_cameras->stop_stream(); }
+
+void ArenaCamerasHandler::set_fps(uint32_t fps)
+{
+  auto node_map = m_device->GetNodeMap();
+  auto max_fps = GenApi::CFloatPtr(node_map->GetNode("AcquisitionFrameRate"))->GetMax();
+  if (fps > max_fps || fps < 0) {
+    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
+    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", max_fps);
+  } else {
+    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
+    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", static_cast<double>(fps));
+  }
+}
 
 ArenaCamerasHandler::~ArenaCamerasHandler()
 {
   std::cout << " ~ArenaCamerasHandler()" << std::endl;
 
+  this->stop_stream();
   m_device->DeregisterImageCallback(m_cameras);
   this->m_cameras->destroy_device(m_p_system);
   CloseSystem(m_p_system);

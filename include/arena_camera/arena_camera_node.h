@@ -4,6 +4,7 @@
 #include "arena_camera/camera_settings.h"
 #include "arena_cameras_handler.h"
 
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include <camera_info_manager/camera_info_manager.hpp>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -30,9 +31,10 @@ private:
 
   void publish_image(std::uint32_t camera_index, const cv::Mat & image);
 
-  static ProtectedPublisher create_publishers(::rclcpp::Node * node, CameraSetting camera_settings);
-
   void init_camera_info(std::string camera_name, std::string camera_info_url);
+
+  rcl_interfaces::msg::SetParametersResult parameters_callback(
+    const std::vector<rclcpp::Parameter> &parameters);
 
   static std::string create_camera_topic_name(std::string camera_name)
   {
@@ -40,6 +42,8 @@ private:
   }
 
   std::unique_ptr<ArenaCamerasHandler> m_arena_camera_handler;
+
+  OnSetParametersCallbackHandle::SharedPtr callback_handle_;
 
   using PublisherT = ::rclcpp::Publisher<::sensor_msgs::msg::Image>;
   using CameraInfoPublisherT = ::rclcpp::Publisher<::sensor_msgs::msg::CameraInfo>;

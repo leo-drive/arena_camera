@@ -1,16 +1,9 @@
 #include "arena_camera/arena_camera_node.h"
-
 #include "arena_camera/camera_settings.h"
-
-#include <opencv2/opencv.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
-
 #include <sensor_msgs/msg/compressed_image.hpp>
-
 #include <cv_bridge/cv_bridge.h>
 #include <rcutils/logging_macros.h>
-#include <signal.h>
-
 #include <chrono>
 #include <utility>
 
@@ -32,6 +25,9 @@ ArenaCameraNode::ArenaCameraNode(const rclcpp::NodeOptions & node_options)
   m_arena_camera_handler->set_image_callback(
     std::bind(&ArenaCameraNode::publish_image, this, std::placeholders::_1, std::placeholders::_2));
   m_arena_camera_handler->start_stream();
+
+  callback_handle_ = this->add_on_set_parameters_callback(
+    std::bind(&ArenaCameraNode::parameters_callback, this, std::placeholders::_1));
 }
 
 CameraSetting ArenaCameraNode::read_camera_settings()
@@ -91,6 +87,36 @@ void ArenaCameraNode::init_camera_info(std::string camera_name, std::string came
   } else {
     RCLCPP_WARN(this->get_logger(), "Invalid camera info URL: %s", camera_info_url.c_str());
   }
+}
+
+rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
+  const std::vector<rclcpp::Parameter> &parameters)
+{
+  rcl_interfaces::msg::SetParametersResult result;
+  result.successful = true;
+  result.reason = "success";
+
+  for (const auto &param: parameters)
+  {
+    RCLCPP_INFO(this->get_logger(), "%s", param.get_name().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", param.get_type_name().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", param.value_to_string().c_str());
+
+    if (param.get_name() == "fps")
+    {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
+      {
+        if (param.as_int() >= 1 && param.as_int() <= 20)
+        {
+          m_arena_camera_handler->set_fps(param.as_int());
+          result.successful = true;
+        }
+      }
+    }
+
+  }
+
+  return result;
 }
 
 RCLCPP_COMPONENTS_REGISTER_NODE(ArenaCameraNode)

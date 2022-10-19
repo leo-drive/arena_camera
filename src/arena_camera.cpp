@@ -93,7 +93,9 @@ void ArenaCamera::acquisition()
   m_device->StartStream();
 }
 
-void ArenaCamera::stop_stream() { m_device->StopStream(); }
+void ArenaCamera::stop_stream() {
+  m_device->StopStream();
+}
 
 void ArenaCamera::destroy_device(Arena::ISystem * system)
 {
@@ -115,9 +117,7 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
   cv::Mat image_bgr(image_cv.rows, image_cv.cols, CV_8UC3);
   cvtColor(image_cv, image_bgr, cv::COLOR_BayerBG2BGR);
 
-  //  cv::resize(image_bgr, image_bgr, cv::Size(720, 465));
   if (m_resize_image) {
-    //    cv::flip(image_bgr, image_bgr, -1);
     cv::resize(image_bgr, image_bgr, cv::Size(720, 465));
   }
 
