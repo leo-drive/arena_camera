@@ -43,6 +43,36 @@ void ArenaCamera::acquisition() {
   Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(),
                             "StreamPacketResendEnable", true);
 
+
+  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", "Off");
+
+
+  {
+    try
+    {
+      Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", "Off");
+
+      GenApi::CFloatPtr pExposureTime = m_device->GetNodeMap()->GetNode("ExposureTime");
+
+      float exposure_to_set = 200;
+      if (exposure_to_set < pExposureTime->GetMin())
+      {
+        exposure_to_set = pExposureTime->GetMin();
+      }
+      else if (exposure_to_set > pExposureTime->GetMax())
+      {
+        exposure_to_set = pExposureTime->GetMax();
+      }
+
+      pExposureTime->SetValue(exposure_to_set);
+    }
+    catch (const GenICam::GenericException& e)
+    {
+    }
+
+  }
+
+
   auto max_fps =
       GenApi::CFloatPtr(node_map->GetNode("AcquisitionFrameRate"))->GetMax();
   if (m_fps > max_fps) {
