@@ -22,7 +22,7 @@
 class ArenaCameraNode : public ::rclcpp::Node
 {
 public:
-  explicit ArenaCameraNode(const rclcpp::NodeOptions & node_options);
+  explicit ArenaCameraNode(rclcpp::NodeOptions node_options);
 
   CameraSetting read_camera_settings();
 
@@ -54,6 +54,11 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info{};
   image_geometry::PinholeCameraModel m_camera_model;
   std::string m_frame_id;
+
+  rcl_interfaces::msg::ParameterDescriptor m_auto_exposure_descriptor;
+  rcl_interfaces::msg::ParameterDescriptor m_auto_gain_descriptor;
+  rcl_interfaces::msg::ParameterDescriptor m_fps_descriptor;
+
 };
 
 #endif  // BUILD_SRC_ARENA_CAMERA_SRC_ARENA_CAMERA_NODE_H_

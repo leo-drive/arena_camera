@@ -12,8 +12,8 @@
 #include <chrono>
 #include <utility>
 
-ArenaCameraNode::ArenaCameraNode(const rclcpp::NodeOptions & node_options)
-: rclcpp::Node{"arena_camera_node", node_options}
+ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
+: rclcpp::Node("arena_camera_node", node_options.allow_undeclared_parameters(true))
 {
   auto camera_settings = read_camera_settings();
   m_arena_camera_handler = std::make_unique<ArenaCamerasHandler>();
@@ -37,33 +37,44 @@ ArenaCameraNode::ArenaCameraNode(const rclcpp::NodeOptions & node_options)
 
 CameraSetting ArenaCameraNode::read_camera_settings()
 {
-  const std::string cameras_param_name{"camera_names"};
+  m_auto_exposure_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
+  m_auto_exposure_descriptor.name ="exposure_target";
+  m_auto_exposure_descriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
+
+  rcl_interfaces::msg::FloatingPointRange exposure_range;
+  exposure_range.set__from_value(1.0).set__to_value(20.0).set__step(1.0);
+  m_auto_exposure_descriptor.floating_point_range = {exposure_range};
+
+  m_fps_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::IntegerRange fps_range;
+  fps_range.set__from_value(1).set__to_value(20).set__step(1);
+  m_fps_descriptor.integer_range = {fps_range};
+
+  std::cout << "read_camera_settings" << std::endl;
+  declare_parameter<double_t>("exposure_target", 90.0, m_auto_exposure_descriptor);
+  std::cout << "read_camera_settings" << std::endl;
 
   CameraSetting camera_setting(
     declare_parameter<std::string>("camera_name"), declare_parameter<std::string>("frame_id"),
     declare_parameter<std::string>("pixel_format"),
     static_cast<uint32_t>(declare_parameter<int64_t>("serial_no")),
-    static_cast<uint32_t>(declare_parameter<int64_t>("fps")),
+    static_cast<uint32_t>(declare_parameter<int64_t>("fps", m_fps_descriptor)),
     static_cast<uint32_t>(declare_parameter<int64_t>("horizontal_binning")),
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
     declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
-    declare_parameter<bool>("exposure_auto"), declare_parameter<float>("exposure_target"),
+    declare_parameter<bool>("exposure_auto"),
+    static_cast<float>(declare_parameter<double>("exposure_target", m_auto_exposure_descriptor)),
     declare_parameter<bool>("gain_auto"), declare_parameter<float>("gain_target"),
-    declare_parameter<float>("gamma_target")
-
-  );
+    declare_parameter<float>("gamma_target"));
 
   return camera_setting;
 }
 
 void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & image)
 {
-  const auto publisher_index = camera_index;
-
   sensor_msgs::msg::Image img_msg;
   std_msgs::msg::Header header;
   header.stamp = this->now();
-
   header.frame_id = m_frame_id;
 
   try {
@@ -105,10 +116,6 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
   result.reason = "success";
 
   for (const auto & param : parameters) {
-    RCLCPP_INFO(this->get_logger(), "%s", param.get_name().c_str());
-    RCLCPP_INFO(this->get_logger(), "%s", param.get_type_name().c_str());
-    RCLCPP_INFO(this->get_logger(), "%s", param.value_to_string().c_str());
-
     if (param.get_name() == "fps") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
         if (param.as_int() >= 1 && param.as_int() <= 20) {
@@ -152,6 +159,10 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
         result.successful = true;
       }
     }
+
+    RCLCPP_INFO(this->get_logger(), "%s", param.get_name().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", param.get_type_name().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", param.value_to_string().c_str());
   }
 
   return result;

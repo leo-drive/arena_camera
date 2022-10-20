@@ -83,8 +83,12 @@ void ArenaCamerasHandler::set_exposure_value(float exposure_value)
   if (auto_exposure == "Off") {
     GenApi::CFloatPtr pExposureTime = m_device->GetNodeMap()->GetNode("ExposureTime");
     try {
+
+      std::cout<<"ExposureTime: "<<pExposureTime->GetMin()<<" "<<pExposureTime->GetMax()<<std::endl;
+
       if (exposure_value < pExposureTime->GetMin()) {
         exposure_value = pExposureTime->GetMin();
+
       } else if (exposure_value > pExposureTime->GetMax()) {
         exposure_value = pExposureTime->GetMax();
       }
@@ -111,6 +115,7 @@ void ArenaCamerasHandler::set_gain_value(float gain_value)
   const auto auto_gain = this->get_auto_gain();
   if (auto_gain == "Off") {
     GenApi::CFloatPtr pGain = m_device->GetNodeMap()->GetNode("Gain");
+    std::cout<<"Gain: "<<pGain->GetMin()<<" "<<pGain->GetMax()<<std::endl;
     try {
       if (gain_value < pGain->GetMin()) {
         gain_value = pGain->GetMin();
