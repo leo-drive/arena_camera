@@ -64,5 +64,34 @@ ArenaCamerasHandler::~ArenaCamerasHandler()
   delete m_cameras;
   delete m_p_system;
   delete m_device;
-  //  m_cameras.clear();
+}
+
+GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_auto_exposure()
+{
+  return Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto");
+}
+
+void ArenaCamerasHandler::set_auto_exposure(bool auto_exposure)
+{
+  GenICam_3_3_LUCID::gcstring exposure_auto = auto_exposure ? "Continuous" : "Off";
+  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", exposure_auto);
+}
+
+void ArenaCamerasHandler::set_exposure_value(float exposure_value)
+{
+  const auto auto_exposure = this->get_auto_exposure();
+  if (auto_exposure == "Off") {
+    GenApi::CFloatPtr pExposureTime = m_device->GetNodeMap()->GetNode("ExposureTime");
+    try {
+      if (exposure_value < pExposureTime->GetMin()) {
+        exposure_value = pExposureTime->GetMin();
+      } else if (exposure_value > pExposureTime->GetMax()) {
+        exposure_value = pExposureTime->GetMax();
+      }
+      pExposureTime->SetValue(exposure_value);
+    } catch (const GenICam::GenericException & e) {
+      std::cerr << "Exception occurred during exposure value handling: " << e.GetDescription()
+                << std::endl;
+    }
+  }
 }

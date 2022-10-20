@@ -24,6 +24,12 @@ public:
 
   void set_fps(uint32_t fps);
 
+  GenICam_3_3_LUCID::gcstring get_auto_exposure();
+
+  void set_auto_exposure(bool auto_exposure);
+
+  void set_exposure_value(float exposure_value);
+
 private:
 
   ArenaCamera * m_cameras;

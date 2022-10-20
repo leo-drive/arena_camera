@@ -1,9 +1,14 @@
 #include "arena_camera/arena_camera_node.h"
+
 #include "arena_camera/camera_settings.h"
+
 #include <rclcpp_components/register_node_macro.hpp>
+
 #include <sensor_msgs/msg/compressed_image.hpp>
+
 #include <cv_bridge/cv_bridge.h>
 #include <rcutils/logging_macros.h>
+
 #include <chrono>
 #include <utility>
 
@@ -41,7 +46,8 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     static_cast<uint32_t>(declare_parameter<int64_t>("fps")),
     static_cast<uint32_t>(declare_parameter<int64_t>("horizontal_binning")),
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
-    declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"));
+    declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
+    declare_parameter<bool>("auto_exposure"), declare_parameter<float>("auto_exposure_target"));
 
   return camera_setting;
 }
@@ -66,7 +72,6 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
     throw std::runtime_error("Runtime error, publish_image.");
   }
 
-
   m_publisher->publish(std::move(img_msg));
 
   if (m_camera_info_publisher) {
@@ -74,7 +79,6 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
     ci->header = img_msg.header;
     m_camera_info_publisher->publish(std::move(ci));
   }
-
 }
 
 void ArenaCameraNode::init_camera_info(std::string camera_name, std::string camera_info_url)
@@ -90,30 +94,39 @@ void ArenaCameraNode::init_camera_info(std::string camera_name, std::string came
 }
 
 rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
-  const std::vector<rclcpp::Parameter> &parameters)
+  const std::vector<rclcpp::Parameter> & parameters)
 {
   rcl_interfaces::msg::SetParametersResult result;
   result.successful = true;
   result.reason = "success";
 
-  for (const auto &param: parameters)
-  {
+  for (const auto & param : parameters) {
     RCLCPP_INFO(this->get_logger(), "%s", param.get_name().c_str());
     RCLCPP_INFO(this->get_logger(), "%s", param.get_type_name().c_str());
     RCLCPP_INFO(this->get_logger(), "%s", param.value_to_string().c_str());
 
-    if (param.get_name() == "fps")
-    {
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER)
-      {
-        if (param.as_int() >= 1 && param.as_int() <= 20)
-        {
+    if (param.get_name() == "fps") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
+        if (param.as_int() >= 1 && param.as_int() <= 20) {
           m_arena_camera_handler->set_fps(param.as_int());
           result.successful = true;
         }
       }
     }
 
+    if (param.get_name() == "auto_exposure") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
+        m_arena_camera_handler->set_auto_exposure(param.as_bool());
+        result.successful = true;
+      }
+    }
+
+    if (param.get_name() == "auto_exposure_target") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
+        m_arena_camera_handler->set_exposure_value(param.as_double());
+        result.successful = true;
+      }
+    }
   }
 
   return result;
