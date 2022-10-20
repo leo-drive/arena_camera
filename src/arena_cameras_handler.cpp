@@ -95,3 +95,53 @@ void ArenaCamerasHandler::set_exposure_value(float exposure_value)
     }
   }
 }
+GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_auto_gain()
+{
+  return Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "GainAuto");
+}
+
+void ArenaCamerasHandler::set_auto_gain(bool auto_gain)
+{
+  GenICam_3_3_LUCID::gcstring gain_auto = auto_gain ? "Continuous" : "Off";
+  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "GainAuto", gain_auto);
+}
+
+void ArenaCamerasHandler::set_gain_value(float gain_value)
+{
+  const auto auto_gain = this->get_auto_gain();
+  if (auto_gain == "Off") {
+    GenApi::CFloatPtr pGain = m_device->GetNodeMap()->GetNode("Gain");
+    try {
+      if (gain_value < pGain->GetMin()) {
+        gain_value = pGain->GetMin();
+      } else if (gain_value > pGain->GetMax()) {
+        gain_value = pGain->GetMax();
+      }
+      pGain->SetValue(gain_value);
+    } catch (const GenICam::GenericException & e) {
+      std::cerr << "Exception occurred during gain value handling: " << e.GetDescription()
+                << std::endl;
+    }
+  }
+}
+void ArenaCamerasHandler::set_gamma_value(float gamma_value)
+{
+  try {
+    GenApi::CBooleanPtr pGammaEnable = m_device->GetNodeMap()->GetNode("GammaEnable");
+    if (GenApi::IsWritable(pGammaEnable)) {
+      pGammaEnable->SetValue(true);
+    }
+    GenApi::CFloatPtr pGamma = m_device->GetNodeMap()->GetNode("Gamma");
+    if (pGamma && GenApi::IsWritable(pGamma)) {
+      if (pGamma->GetMin() > gamma_value) {
+        gamma_value = pGamma->GetMin();
+      } else if (pGamma->GetMax() < gamma_value) {
+        gamma_value = pGamma->GetMax();
+      }
+      pGamma->SetValue(gamma_value);
+    }
+  } catch (const GenICam::GenericException & e) {
+    std::cerr << "Exception occurred during gamma value handling: " << e.GetDescription()
+              << std::endl;
+  }
+}

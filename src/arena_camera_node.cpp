@@ -47,7 +47,11 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     static_cast<uint32_t>(declare_parameter<int64_t>("horizontal_binning")),
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
     declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
-    declare_parameter<bool>("auto_exposure"), declare_parameter<float>("auto_exposure_target"));
+    declare_parameter<bool>("exposure_auto"), declare_parameter<float>("exposure_target"),
+    declare_parameter<bool>("gain_auto"), declare_parameter<float>("gain_target"),
+    declare_parameter<float>("gamma_target")
+
+  );
 
   return camera_setting;
 }
@@ -114,16 +118,37 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       }
     }
 
-    if (param.get_name() == "auto_exposure") {
+    if (param.get_name() == "exposure_auto") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
         m_arena_camera_handler->set_auto_exposure(param.as_bool());
         result.successful = true;
       }
     }
 
-    if (param.get_name() == "auto_exposure_target") {
+    if (param.get_name() == "exposure_target") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
         m_arena_camera_handler->set_exposure_value(param.as_double());
+        result.successful = true;
+      }
+    }
+
+    if (param.get_name() == "gain_auto") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
+        m_arena_camera_handler->set_auto_gain(param.as_bool());
+        result.successful = true;
+      }
+    }
+
+    if (param.get_name() == "gain_target") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
+        m_arena_camera_handler->set_gain_value(param.as_double());
+        result.successful = true;
+      }
+    }
+
+    if (param.get_name() == "gamma_target") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
+        m_arena_camera_handler->set_gamma_value(param.as_double());
         result.successful = true;
       }
     }

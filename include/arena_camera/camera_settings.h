@@ -10,7 +10,8 @@ public:
   explicit CameraSetting(
     const std::string & camera_name, const std::string & frame_id, const std::string & pixel_format,
     uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning, uint32_t vertical_binning,
-    bool resize_image, const std::string & url_camera_info, bool exposure_auto, float exposure_value)
+    bool resize_image, const std::string & url_camera_info, bool exposure_auto,
+    float exposure_value, bool gain_auto, float gain_value, float gamma_value)
   : m_camera_name{camera_name},
     m_frame_id{frame_id},
     m_pixel_format{pixel_format},
@@ -21,7 +22,10 @@ public:
     m_resize_image{resize_image},
     m_url_camera_info{url_camera_info},
     m_auto_exposure_enable{exposure_auto},
-    m_auto_exposure_value{exposure_value}
+    m_auto_exposure_value{exposure_value},
+    m_gain_auto_enable{gain_auto},
+    m_auto_gain_value{gain_value},
+    m_gamma_value{gamma_value}
   {
     std::cout << "Camera readed from yaml file. Camera Name:" << m_camera_name
               << " Frame id:" << m_frame_id << " Serial no:" << m_serial_no
@@ -60,6 +64,9 @@ private:
   bool m_resize_image;
   bool m_auto_exposure_enable;
   float m_auto_exposure_value;  // Only relevant if m_auto_exposure_enable=true
+  bool m_gain_auto_enable;
+  float m_auto_gain_value;  // Only relevant if m_gain_auto_enable=true
+  float m_gamma_value;
 };
 
 #endif  // BUILD_CAMERA_SETTINGS_H

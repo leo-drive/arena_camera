@@ -30,14 +30,20 @@ public:
 
   void set_exposure_value(float exposure_value);
 
-private:
+  GenICam_3_3_LUCID::gcstring get_auto_gain();
 
+  void set_auto_gain(bool auto_gain);
+
+  void set_gain_value(float gain_value);
+
+  void set_gamma_value(float gamma_value);
+
+private:
   ArenaCamera * m_cameras;
 
   Arena::ISystem * m_p_system;
 
   Arena::IDevice * m_device;
-
 };
 
 #endif  // BUILD_CAMERAS_WRAPPER_H
