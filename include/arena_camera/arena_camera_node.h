@@ -55,10 +55,6 @@ private:
   image_geometry::PinholeCameraModel m_camera_model;
   std::string m_frame_id;
 
-  rcl_interfaces::msg::ParameterDescriptor m_auto_exposure_descriptor;
-  rcl_interfaces::msg::ParameterDescriptor m_auto_gain_descriptor;
-  rcl_interfaces::msg::ParameterDescriptor m_fps_descriptor;
-
 };
 
 #endif  // BUILD_SRC_ARENA_CAMERA_SRC_ARENA_CAMERA_NODE_H_

@@ -11,9 +11,9 @@
     horizontal_binning: 4
     vertical_binning: 4
     exposure_auto: true
-    exposure_target: 80.0
+    exposure_target: 187
     gain_auto: true
-    gain_target: 0.5
+    gain_target: 1
     gamma_target: 1.0
 
 

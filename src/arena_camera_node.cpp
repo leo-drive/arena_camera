@@ -37,34 +37,33 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
 
 CameraSetting ArenaCameraNode::read_camera_settings()
 {
-  m_auto_exposure_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
-  m_auto_exposure_descriptor.name ="exposure_target";
-  m_auto_exposure_descriptor.type = rcl_interfaces::msg::ParameterType::PARAMETER_DOUBLE;
-
-  rcl_interfaces::msg::FloatingPointRange exposure_range;
-  exposure_range.set__from_value(1.0).set__to_value(20.0).set__step(1.0);
-  m_auto_exposure_descriptor.floating_point_range = {exposure_range};
-
-  m_fps_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
+  auto fps_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
   rcl_interfaces::msg::IntegerRange fps_range;
   fps_range.set__from_value(1).set__to_value(20).set__step(1);
-  m_fps_descriptor.integer_range = {fps_range};
+  fps_descriptor.integer_range = {fps_range};
 
-  std::cout << "read_camera_settings" << std::endl;
-  declare_parameter<double_t>("exposure_target", 90.0, m_auto_exposure_descriptor);
-  std::cout << "read_camera_settings" << std::endl;
+  auto auto_exposure_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::IntegerRange exposure_range;
+  exposure_range.set__from_value(87).set__to_value(66000).set__step(1);
+  auto_exposure_descriptor.integer_range = {exposure_range};
+
+  auto gain_descriptor = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::IntegerRange gain_range;
+  gain_range.set__from_value(0).set__to_value(42).set__step(1);
+  gain_descriptor.integer_range = {gain_range};
 
   CameraSetting camera_setting(
     declare_parameter<std::string>("camera_name"), declare_parameter<std::string>("frame_id"),
     declare_parameter<std::string>("pixel_format"),
     static_cast<uint32_t>(declare_parameter<int64_t>("serial_no")),
-    static_cast<uint32_t>(declare_parameter<int64_t>("fps", m_fps_descriptor)),
+    static_cast<uint32_t>(declare_parameter<int64_t>("fps", fps_descriptor)),
     static_cast<uint32_t>(declare_parameter<int64_t>("horizontal_binning")),
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
     declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
     declare_parameter<bool>("exposure_auto"),
-    static_cast<float>(declare_parameter<double>("exposure_target", m_auto_exposure_descriptor)),
-    declare_parameter<bool>("gain_auto"), declare_parameter<float>("gain_target"),
+    static_cast<float >(declare_parameter<int64_t>("exposure_target", auto_exposure_descriptor)),
+    declare_parameter<bool>("gain_auto"),
+      static_cast<float >(declare_parameter<int64_t>("gain_target",gain_descriptor)),
     declare_parameter<float>("gamma_target"));
 
   return camera_setting;
@@ -115,12 +114,18 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
   result.successful = true;
   result.reason = "success";
 
+  auto print_status = [this](const rclcpp::Parameter & parameter) {
+    RCLCPP_INFO(this->get_logger(), "%s", parameter.get_name().c_str());
+    RCLCPP_INFO(this->get_logger(), "%s", parameter.value_to_string().c_str());
+  };
+
   for (const auto & param : parameters) {
     if (param.get_name() == "fps") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
         if (param.as_int() >= 1 && param.as_int() <= 20) {
           m_arena_camera_handler->set_fps(param.as_int());
           result.successful = true;
+          print_status(param);
         }
       }
     }
@@ -129,13 +134,17 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
         m_arena_camera_handler->set_auto_exposure(param.as_bool());
         result.successful = true;
+        print_status(param);
       }
     }
 
     if (param.get_name() == "exposure_target") {
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
-        m_arena_camera_handler->set_exposure_value(param.as_double());
+      auto exposure_auto_enable = this->get_parameter("exposure_auto");
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
+          !exposure_auto_enable.as_bool()) {
+        m_arena_camera_handler->set_exposure_value(static_cast<float>(param.as_int()));
         result.successful = true;
+        print_status(param);
       }
     }
 
@@ -143,13 +152,17 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
         m_arena_camera_handler->set_auto_gain(param.as_bool());
         result.successful = true;
+        print_status(param);
       }
     }
 
     if (param.get_name() == "gain_target") {
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
-        m_arena_camera_handler->set_gain_value(param.as_double());
+      auto gain_auto_enabled = this->get_parameter("gain_auto");
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
+          !gain_auto_enabled.as_bool()) {
+        m_arena_camera_handler->set_gain_value(static_cast<float>(param.as_int()));
         result.successful = true;
+        print_status(param);
       }
     }
 
@@ -157,12 +170,9 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
         m_arena_camera_handler->set_gamma_value(param.as_double());
         result.successful = true;
+        print_status(param);
       }
     }
-
-    RCLCPP_INFO(this->get_logger(), "%s", param.get_name().c_str());
-    RCLCPP_INFO(this->get_logger(), "%s", param.get_type_name().c_str());
-    RCLCPP_INFO(this->get_logger(), "%s", param.value_to_string().c_str());
   }
 
   return result;
