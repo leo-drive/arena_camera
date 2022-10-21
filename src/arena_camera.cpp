@@ -93,9 +93,7 @@ void ArenaCamera::acquisition()
   m_device->StartStream();
 }
 
-void ArenaCamera::stop_stream() {
-  m_device->StopStream();
-}
+void ArenaCamera::stop_stream() { m_device->StopStream(); }
 
 void ArenaCamera::destroy_device(Arena::ISystem * system)
 {

@@ -19,6 +19,7 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
   m_arena_camera_handler = std::make_unique<ArenaCamerasHandler>();
   m_arena_camera_handler->create_cameras_from_settings(camera_settings);
   this->m_frame_id = camera_settings.get_frame_id();
+
   init_camera_info(camera_settings.get_camera_name(), camera_settings.get_url_camera_info());
   m_publisher = this->create_publisher<sensor_msgs::msg::Image>(
     create_camera_topic_name(camera_settings.get_camera_name()) + "/image",
@@ -61,9 +62,9 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
     declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
     declare_parameter<bool>("exposure_auto"),
-    static_cast<float >(declare_parameter<int64_t>("exposure_target", auto_exposure_descriptor)),
+    static_cast<float>(declare_parameter<int64_t>("exposure_target", auto_exposure_descriptor)),
     declare_parameter<bool>("gain_auto"),
-      static_cast<float >(declare_parameter<int64_t>("gain_target",gain_descriptor)),
+    static_cast<float>(declare_parameter<int64_t>("gain_target", gain_descriptor)),
     declare_parameter<float>("gamma_target"));
 
   return camera_setting;
@@ -140,8 +141,9 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
 
     if (param.get_name() == "exposure_target") {
       auto exposure_auto_enable = this->get_parameter("exposure_auto");
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
-          !exposure_auto_enable.as_bool()) {
+      if (
+        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
+        !exposure_auto_enable.as_bool()) {
         m_arena_camera_handler->set_exposure_value(static_cast<float>(param.as_int()));
         result.successful = true;
         print_status(param);
@@ -158,8 +160,9 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
 
     if (param.get_name() == "gain_target") {
       auto gain_auto_enabled = this->get_parameter("gain_auto");
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
-          !gain_auto_enabled.as_bool()) {
+      if (
+        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
+        !gain_auto_enabled.as_bool()) {
         m_arena_camera_handler->set_gain_value(static_cast<float>(param.as_int()));
         result.successful = true;
         print_status(param);

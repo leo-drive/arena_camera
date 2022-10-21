@@ -3,8 +3,8 @@
 
 #include "arena_camera/camera_settings.h"
 #include "arena_cameras_handler.h"
-
 #include "rcl_interfaces/msg/set_parameters_result.hpp"
+
 #include <camera_info_manager/camera_info_manager.hpp>
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -34,7 +34,7 @@ private:
   void init_camera_info(std::string camera_name, std::string camera_info_url);
 
   rcl_interfaces::msg::SetParametersResult parameters_callback(
-    const std::vector<rclcpp::Parameter> &parameters);
+    const std::vector<rclcpp::Parameter> & parameters);
 
   static std::string create_camera_topic_name(std::string camera_name)
   {
@@ -54,7 +54,6 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info{};
   image_geometry::PinholeCameraModel m_camera_model;
   std::string m_frame_id;
-
 };
 
 #endif  // BUILD_SRC_ARENA_CAMERA_SRC_ARENA_CAMERA_NODE_H_
