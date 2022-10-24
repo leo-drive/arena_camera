@@ -10,9 +10,9 @@
     fps: 15
     horizontal_binning: 4
     vertical_binning: 4
-    exposure_auto: true
+    exposure_auto: false
     exposure_target: 187
-    gain_auto: true
+    gain_auto: false
     gain_target: 1
     gamma_target: 1.0
 

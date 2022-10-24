@@ -22,6 +22,15 @@ void ArenaCamerasHandler::create_cameras_from_settings(CameraSetting & camera_se
 
   if (it != devicesInfos.end()) {
     m_device = m_p_system->CreateDevice(*it);
+
+    // Prepare camera settings
+    this->set_fps(camera_settings.get_fps());
+    this->set_auto_exposure(camera_settings.get_enable_exposure_auto());
+    this->set_exposure_value(camera_settings.get_auto_exposure_value());
+    this->set_auto_gain(camera_settings.get_enable_exposure_auto());
+    this->set_gain_value(camera_settings.get_auto_gain_value());
+    this->set_gamma_value(camera_settings.get_gamma_value());
+
     m_cameras = new ArenaCamera(m_device, camera_settings);
     m_device->RegisterImageCallback(m_cameras);
 

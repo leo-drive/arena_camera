@@ -41,26 +41,21 @@ void ArenaCamera::acquisition()
 {
   auto node_map = m_device->GetNodeMap();
   std::cout << "Camera idx:" << m_cam_idx << " acquisition thread." << std::endl;
+
   Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionMode", "Continuous");
 
-  // enable stream auto negotiate packet size
+  // Enable stream auto negotiate packet size
   Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamAutoNegotiatePacketSize", true);
 
-  //     enable stream packet resend
+  // Enable stream packet resend
   Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
-
-  auto max_fps = GenApi::CFloatPtr(node_map->GetNode("AcquisitionFrameRate"))->GetMax();
-  if (m_fps > max_fps) {
-    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
-    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", max_fps);
-  } else {
-    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
-    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", static_cast<double>(m_fps));
-  }
 
   std::size_t reached_binning_x;
   GenApi::CIntegerPtr pBinningHorizontal = m_device->GetNodeMap()->GetNode("BinningHorizontal");
   if (GenApi::IsWritable(pBinningHorizontal)) {
+    std::cout<<"m_horizontal_binning : "<< m_horizontal_binning << std::endl;
+    std::cout<<"pBinningHorizontal->GetMin() : "<< pBinningHorizontal->GetMin() << std::endl;
+    std::cout<<"pBinningHorizontal->GetMax() : "<< pBinningHorizontal->GetMax() << std::endl;
     size_t binning_x_to_set = m_horizontal_binning;
     if (binning_x_to_set < pBinningHorizontal->GetMin()) {
       binning_x_to_set = pBinningHorizontal->GetMin();
@@ -77,6 +72,10 @@ void ArenaCamera::acquisition()
   std::size_t reached_binning_y;
   GenApi::CIntegerPtr pBinningVertical = m_device->GetNodeMap()->GetNode("BinningVertical");
   if (GenApi::IsWritable(pBinningVertical)) {
+    std::cout<<"m_vertical_binning : "<< m_vertical_binning << std::endl;
+    std::cout<<"pBinningVertical->GetMin() : "<< pBinningVertical->GetMin() << std::endl;
+    std::cout<<"pBinningVertical->GetMax() : "<< pBinningVertical->GetMax() << std::endl;
+
     size_t binning_y_to_set = m_vertical_binning;
     if (binning_y_to_set < pBinningVertical->GetMin()) {
       binning_y_to_set = pBinningVertical->GetMin();

@@ -52,6 +52,15 @@ public:
   float get_auto_exposure_value() { return m_auto_exposure_value; }
   void set_auto_exposure_value(float exposure_value) { m_auto_exposure_value = exposure_value; }
 
+  float get_auto_gain_value() { return m_auto_gain_value; }
+  void set_auto_gain_value(float gain_value) { m_auto_gain_value = gain_value; }
+
+  bool get_enable_gain_auto() { return m_gain_auto_enable; }
+  void set_enable_auto_gain(bool enable_gain_auto) { m_gain_auto_enable = enable_gain_auto; }
+
+  float get_gamma_value() { return m_gamma_value; }
+  void set_gamma_value(float gamma_value) { m_gamma_value = gamma_value; }
+
 private:
   std::string m_url_camera_info;
   std::string m_camera_name;

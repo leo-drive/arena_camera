@@ -28,7 +28,7 @@ to use this node, you need to install Lucid Vision Labs' ArenaSDK.
 
 7. Source the directory and run the executable with following command.
 
-   `ros2 run arena_camera arena_camera_node_exe --ros-args --params-file <your_workspace>/src/arena_camera/param/<your_param_file>.param.yaml `
+   `ros2 run arena_camera arena_camera_node_exe --ros-args --params-file <your_workspace>/src/arena_camera/param/<your_param_file>.param.yaml`
 
    7.1 You can check whether data is flowing or not and what is the rate of it with following commands.
 
@@ -45,3 +45,21 @@ to use this node, you need to install Lucid Vision Labs' ArenaSDK.
 
    8.4 Be sure that visibility button checked.
 
+### Camera Settings
+
+You can change camera settings with following commands.
+
+1. Open another terminal and run rqt_reconfigure with following command.
+
+   `ros2 run rqt_reconfigure rqt_reconfigure`
+
+2. Change your camera settings with rqt_reconfigure GUI. Choose your camera from the list and change your settings.
+   Choose desired exposure, gain and gamma values. You can also change the FPS of the image.
+   (You can change your settings with ROS2 parameters too. You can find the parameters in the param file.)
+
+3. Dump your camera settings with following command.
+
+   `ros2 param dump /arena_camera_node --output-dir <your_workspace>/src/arena_camera/param/`
+   
+   Run the camera node with the new param file.
+   `ros2 run arena_camera arena_camera_node_exe --ros-args --params-file <your_workspace>/src/arena_camera/param/arena_camera_node.yaml`
