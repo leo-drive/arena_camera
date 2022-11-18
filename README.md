@@ -29,7 +29,7 @@ This camera driver has been tested on ROS2 Galactic(Ubuntu 20.04) and ROS2 Humbl
 
 7. Source the directory and run the executable with following command.
 
-   `ros2 run arena_camera arena_camera_node_exe --ros-args --params-file <your_workspace>/src/arena_camera/param/<your_param_file>.param.yaml`
+   `ros2 launch arena_camera test_node_container.launch.py`
 
    7.1 You can check whether data is flowing or not and what is the rate of it with following commands.
 
