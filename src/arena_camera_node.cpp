@@ -17,7 +17,7 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
 {
   auto camera_settings = read_camera_settings();
   m_arena_camera_handler = std::make_unique<ArenaCamerasHandler>();
-  m_arena_camera_handler->create_cameras_from_settings(camera_settings);
+  m_arena_camera_handler->create_camera_from_settings(camera_settings);
   this->m_frame_id = camera_settings.get_frame_id();
 
   init_camera_info(camera_settings.get_camera_name(), camera_settings.get_url_camera_info());
@@ -65,7 +65,8 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     static_cast<float>(declare_parameter<int64_t>("exposure_target", auto_exposure_descriptor)),
     declare_parameter<bool>("gain_auto"),
     static_cast<float>(declare_parameter<int64_t>("gain_target", gain_descriptor)),
-    declare_parameter<float>("gamma_target"));
+    declare_parameter<float>("gamma_target"),
+    declare_parameter<bool>("use_default_device_settings"));
 
   return camera_setting;
 }
@@ -138,10 +139,8 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
     }
 
     if (param.get_name() == "exposure_target") {
-      auto exposure_auto_enable = this->get_parameter("exposure_auto");
       if (
-        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
-        !exposure_auto_enable.as_bool()) {
+        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
         m_arena_camera_handler->set_exposure_value(static_cast<float>(param.as_int()));
         result.successful = true;
         print_status(param);
@@ -157,10 +156,8 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
     }
 
     if (param.get_name() == "gain_target") {
-      auto gain_auto_enabled = this->get_parameter("gain_auto");
       if (
-        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER &&
-        !gain_auto_enabled.as_bool()) {
+        param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
         m_arena_camera_handler->set_gain_value(static_cast<float>(param.as_int()));
         result.successful = true;
         print_status(param);
@@ -170,6 +167,14 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
     if (param.get_name() == "gamma_target") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
         m_arena_camera_handler->set_gamma_value(param.as_double());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "use_default_device_settings") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
+        m_arena_camera_handler->set_use_default_device_settings(param.as_bool());
         result.successful = true;
         print_status(param);
       }

@@ -1,5 +1,5 @@
 #include "arena_camera/arena_cameras_handler.h"
-
+#include <rclcpp/rclcpp.hpp>
 #include <algorithm>
 
 ArenaCamerasHandler::ArenaCamerasHandler()
@@ -8,11 +8,14 @@ ArenaCamerasHandler::ArenaCamerasHandler()
   m_p_system->UpdateDevices(100);
 }
 
-void ArenaCamerasHandler::create_cameras_from_settings(CameraSetting & camera_settings)
+void ArenaCamerasHandler::create_camera_from_settings(CameraSetting & camera_settings)
 {
   std::vector<Arena::DeviceInfo> devicesInfos = m_p_system->GetDevices();
 
   if (devicesInfos.size() == 0) {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "There is no connected devices. Please connect a device and try again.");
     throw std::runtime_error("arena_camera: There is no connected devices.");
   }
 
@@ -23,18 +26,25 @@ void ArenaCamerasHandler::create_cameras_from_settings(CameraSetting & camera_se
   if (it != devicesInfos.end()) {
     m_device = m_p_system->CreateDevice(*it);
 
+    m_use_default_device_settings = camera_settings.get_use_default_device_settings();
     // Prepare camera settings
     this->set_fps(camera_settings.get_fps());
-    this->set_auto_exposure(camera_settings.get_enable_exposure_auto());
-    this->set_exposure_value(camera_settings.get_auto_exposure_value());
-    this->set_auto_gain(camera_settings.get_enable_exposure_auto());
-    this->set_gain_value(camera_settings.get_auto_gain_value());
-    this->set_gamma_value(camera_settings.get_gamma_value());
+
+    if (!m_use_default_device_settings) {
+      this->set_auto_exposure(camera_settings.get_enable_exposure_auto());
+      this->set_exposure_value(camera_settings.get_auto_exposure_value());
+      this->set_auto_gain(camera_settings.get_enable_exposure_auto());
+      this->set_gain_value(camera_settings.get_auto_gain_value());
+      this->set_gamma_value(camera_settings.get_gamma_value());
+    }
 
     m_cameras = new ArenaCamera(m_device, camera_settings);
     m_device->RegisterImageCallback(m_cameras);
 
   } else {
+    RCLCPP_ERROR(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Wrong device serial no in parameters file. Please check the serial no and try again.");
     throw std::runtime_error("arena_camera: Wrong device serial no in parameters file.");
   }
 }
@@ -82,12 +92,25 @@ GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_auto_exposure()
 
 void ArenaCamerasHandler::set_auto_exposure(bool auto_exposure)
 {
+  if(m_use_default_device_settings){
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set auto exposure. Using default device settings.");
+    return;
+  }
   GenICam_3_3_LUCID::gcstring exposure_auto = auto_exposure ? "Continuous" : "Off";
   Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", exposure_auto);
 }
 
 void ArenaCamerasHandler::set_exposure_value(float exposure_value)
 {
+  if(m_use_default_device_settings){
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set exposure value. Using default device settings.");
+    return;
+  }
+
   const auto auto_exposure = this->get_auto_exposure();
   if (auto_exposure == "Off") {
     GenApi::CFloatPtr pExposureTime = m_device->GetNodeMap()->GetNode("ExposureTime");
@@ -103,6 +126,10 @@ void ArenaCamerasHandler::set_exposure_value(float exposure_value)
       std::cerr << "Exception occurred during exposure value handling: " << e.GetDescription()
                 << std::endl;
     }
+  }else{
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set exposure value when auto exposure is enabled.");
   }
 }
 GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_auto_gain()
@@ -112,12 +139,24 @@ GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_auto_gain()
 
 void ArenaCamerasHandler::set_auto_gain(bool auto_gain)
 {
+  if(m_use_default_device_settings){
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set auto gain. Using default device settings.");
+    return;
+  }
   GenICam_3_3_LUCID::gcstring gain_auto = auto_gain ? "Continuous" : "Off";
   Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "GainAuto", gain_auto);
 }
 
 void ArenaCamerasHandler::set_gain_value(float gain_value)
 {
+  if(m_use_default_device_settings){
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set gain value. Using default device settings.");
+    return;
+  }
   const auto auto_gain = this->get_auto_gain();
   if (auto_gain == "Off") {
     GenApi::CFloatPtr pGain = m_device->GetNodeMap()->GetNode("Gain");
@@ -132,10 +171,22 @@ void ArenaCamerasHandler::set_gain_value(float gain_value)
       std::cerr << "Exception occurred during gain value handling: " << e.GetDescription()
                 << std::endl;
     }
+  }else{
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set gain value when auto gain is enabled.");
   }
 }
 void ArenaCamerasHandler::set_gamma_value(float gamma_value)
 {
+
+  if(m_use_default_device_settings){
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set gain value. Using default device settings.");
+    return;
+  }
+
   try {
     GenApi::CBooleanPtr pGammaEnable = m_device->GetNodeMap()->GetNode("GammaEnable");
     if (GenApi::IsWritable(pGammaEnable)) {
@@ -154,4 +205,12 @@ void ArenaCamerasHandler::set_gamma_value(float gamma_value)
     std::cerr << "Exception occurred during gamma value handling: " << e.GetDescription()
               << std::endl;
   }
+}
+void ArenaCamerasHandler::set_use_default_device_settings(bool use_default_device_settings)
+{
+  this->m_use_default_device_settings = use_default_device_settings;
+}
+bool ArenaCamerasHandler::get_use_default_device_settings()
+{
+  return m_use_default_device_settings;
 }

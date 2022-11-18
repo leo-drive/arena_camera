@@ -7,12 +7,6 @@ if (NOT CMAKE_CXX_STANDARD)
 endif ()
 
 set(CMAKE_CXX_FLAGS "-g3 -O3")
-#set(CMAKE_CXX_FLAGS "-g")
-
-#if (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-#    add_compile_options(-Wall -Wextra -Wpedantic)
-#endif ()
-#add_compile_options(-O3 -g3)
 
 # find dependencies
 find_package(ament_cmake_auto REQUIRED)
@@ -38,11 +32,6 @@ ament_auto_add_library(arena_camera_node SHARED
         "src/arena_camera.cpp"
         "src/arena_cameras_handler.cpp")
 
-
-#ament_auto_add_executable(arena_camera_node_exe
-#  "src/node_main_arena_camera_node_exe.cpp")
-
-
 ## ArenaSDK is not handled by ament, so we need the manual steps below.
 target_include_directories(arena_camera_node
         SYSTEM
@@ -55,11 +44,9 @@ target_link_libraries(arena_camera_node
         ${arena_sdk_LIBRARIES}
         )
 
-
 # These are external libraries and include folders that we want to be visible to the packages
 # that depend on this one.
 ament_export_include_directories(${arena_sdk_INCLUDES})
-#ament_export_libraries(${SPINNAKER_LIBRARIES})
 
 if (BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
@@ -70,4 +57,8 @@ rclcpp_components_register_node(arena_camera_node
         PLUGIN "ArenaCameraNode"
         EXECUTABLE arena_camera_node_exe)
 
-ament_auto_package()
+ament_auto_package(INSTALL_TO_SHARE
+        launch
+        config
+        param
+        )

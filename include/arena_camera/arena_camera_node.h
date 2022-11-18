@@ -27,8 +27,6 @@ public:
   CameraSetting read_camera_settings();
 
 private:
-  class ProtectedPublisher;
-
   void publish_image(std::uint32_t camera_index, const cv::Mat & image);
 
   void init_camera_info(std::string camera_name, std::string camera_info_url);

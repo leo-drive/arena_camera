@@ -14,7 +14,7 @@ public:
 
   ~ArenaCamerasHandler();
 
-  void create_cameras_from_settings(CameraSetting & camera_settings);
+  void create_camera_from_settings(CameraSetting & camera_settings);
 
   void set_image_callback(ArenaCamera::ImageCallbackFunction callback);
 
@@ -38,12 +38,18 @@ public:
 
   void set_gamma_value(float gamma_value);
 
+  void set_use_default_device_settings(bool use_default_device_settings);
+
+  bool get_use_default_device_settings();
+
 private:
   ArenaCamera * m_cameras;
 
   Arena::ISystem * m_p_system;
 
   Arena::IDevice * m_device;
+
+  bool m_use_default_device_settings;
 };
 
 #endif  // BUILD_CAMERAS_WRAPPER_H
