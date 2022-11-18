@@ -99,8 +99,6 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
 void ArenaCameraNode::init_camera_info(std::string camera_name, std::string camera_info_url)
 {
   m_camera_info = std::make_shared<camera_info_manager::CameraInfoManager>(this, camera_name);
-  std::cout << "camera_name :" << camera_name << std::endl;
-  std::cout << "camera_info :" << camera_info_url << std::endl;
   if (m_camera_info->validateURL(camera_info_url)) {
     m_camera_info->loadCameraInfo(camera_info_url);
   } else {

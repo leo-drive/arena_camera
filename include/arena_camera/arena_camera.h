@@ -67,6 +67,10 @@ private:
 
   uint32_t m_vertical_binning;
 
+  uint32_t m_reached_horizontal_binning;
+
+  uint32_t m_reached_vertical_binning;
+
   bool m_resize_image;
 
   std::shared_future<void> future_;

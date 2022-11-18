@@ -1,5 +1,7 @@
 #include "arena_camera/arena_camera.h"
 
+#include <rclcpp/rclcpp.hpp>
+
 ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting)
 : m_device(device),
   m_camera_name(camera_setting.get_camera_name()),
@@ -50,12 +52,8 @@ void ArenaCamera::acquisition()
   // Enable stream packet resend
   Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
 
-  std::size_t reached_binning_x;
   GenApi::CIntegerPtr pBinningHorizontal = m_device->GetNodeMap()->GetNode("BinningHorizontal");
   if (GenApi::IsWritable(pBinningHorizontal)) {
-    std::cout<<"m_horizontal_binning : "<< m_horizontal_binning << std::endl;
-    std::cout<<"pBinningHorizontal->GetMin() : "<< pBinningHorizontal->GetMin() << std::endl;
-    std::cout<<"pBinningHorizontal->GetMax() : "<< pBinningHorizontal->GetMax() << std::endl;
     size_t binning_x_to_set = m_horizontal_binning;
     if (binning_x_to_set < pBinningHorizontal->GetMin()) {
       binning_x_to_set = pBinningHorizontal->GetMin();
@@ -63,19 +61,20 @@ void ArenaCamera::acquisition()
       binning_x_to_set = pBinningHorizontal->GetMax();
     }
     pBinningHorizontal->SetValue(binning_x_to_set);
-    reached_binning_x = pBinningHorizontal->GetValue();
-    std::cout << "Current binning horizontal : " << reached_binning_x << std::endl;
+    m_reached_horizontal_binning = pBinningHorizontal->GetValue();
+    if (m_reached_horizontal_binning != m_horizontal_binning) {
+      RCLCPP_INFO(
+        rclcpp::get_logger("ARENA_CAMERA"),
+        "Not possible to use hardware based binning for horizontal binning:%d , software binning "
+        "will be used.",
+        m_horizontal_binning);
+    }
   } else {
     std::cout << "Binning horizantal value not readable." << std::endl;
   }
 
-  std::size_t reached_binning_y;
   GenApi::CIntegerPtr pBinningVertical = m_device->GetNodeMap()->GetNode("BinningVertical");
   if (GenApi::IsWritable(pBinningVertical)) {
-    std::cout<<"m_vertical_binning : "<< m_vertical_binning << std::endl;
-    std::cout<<"pBinningVertical->GetMin() : "<< pBinningVertical->GetMin() << std::endl;
-    std::cout<<"pBinningVertical->GetMax() : "<< pBinningVertical->GetMax() << std::endl;
-
     size_t binning_y_to_set = m_vertical_binning;
     if (binning_y_to_set < pBinningVertical->GetMin()) {
       binning_y_to_set = pBinningVertical->GetMin();
@@ -83,8 +82,14 @@ void ArenaCamera::acquisition()
       binning_y_to_set = pBinningVertical->GetMax();
     }
     pBinningHorizontal->SetValue(binning_y_to_set);
-    reached_binning_y = pBinningVertical->GetValue();
-    std::cout << "Current binning vertical : " << reached_binning_y << std::endl;
+    m_reached_vertical_binning = pBinningVertical->GetValue();
+    if (m_reached_vertical_binning != m_vertical_binning) {
+      RCLCPP_INFO(
+        rclcpp::get_logger("ARENA_CAMERA"),
+        "Not possible to use hardware based binning for vertical binning:%d , software binning "
+        "will be used.",
+        m_horizontal_binning);
+    }
   } else {
     std::cout << "Binning vertical value not readable." << std::endl;
   }
@@ -114,8 +119,15 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
   cv::Mat image_bgr(image_cv.rows, image_cv.cols, CV_8UC3);
   cvtColor(image_cv, image_bgr, cv::COLOR_BayerBG2BGR);
 
-  if (m_resize_image) {
-    cv::resize(image_bgr, image_bgr, cv::Size(720, 465));
+  if (
+    m_vertical_binning / m_reached_vertical_binning != 1 ||
+    m_horizontal_binning / m_reached_horizontal_binning != 1) {
+    int ext_vertical_binning = m_vertical_binning / m_reached_vertical_binning;
+    int ext_horizontal_binning = m_horizontal_binning / m_reached_horizontal_binning;
+
+    cv::resize(
+      image_bgr, image_bgr,
+      cv::Size(image_bgr.cols / ext_horizontal_binning, image_bgr.rows / ext_vertical_binning));
   }
 
   return image_bgr;
