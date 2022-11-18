@@ -1,6 +1,6 @@
 /arena_camera_node:
   ros__parameters:
-    camera_info_url: /home/kaan/projects/arena_camera_leo_ws/src/arena_camera/config/camera0_info.yaml
+    camera_info_url: "file:///home/kaan/projects/arena_camera_leo_ws/src/arena_camera/config/camera0_info.yaml"
     camera_name: camera_1
     exposure_auto: true
     exposure_target: 34797
@@ -18,7 +18,6 @@
           durability: volatile
           history: keep_last
           reliability: reliable
-    resize_image: false
     serial_no: 220300119
     use_sim_time: false
     vertical_binning: 4

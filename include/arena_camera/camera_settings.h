@@ -10,8 +10,8 @@ public:
   explicit CameraSetting(
     const std::string & camera_name, const std::string & frame_id, const std::string & pixel_format,
     uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning, uint32_t vertical_binning,
-    bool resize_image, const std::string & url_camera_info, bool exposure_auto,
-    float exposure_value, bool gain_auto, float gain_value, float gamma_value)
+    const std::string & url_camera_info, bool exposure_auto, float exposure_value, bool gain_auto,
+    float gain_value, float gamma_value)
   : m_camera_name{camera_name},
     m_frame_id{frame_id},
     m_pixel_format{pixel_format},
@@ -19,7 +19,6 @@ public:
     m_fps{fps},
     m_horizontal_binning{horizontal_binning},
     m_vertical_binning{vertical_binning},
-    m_resize_image{resize_image},
     m_url_camera_info{url_camera_info},
     m_auto_exposure_enable{exposure_auto},
     m_auto_exposure_value{exposure_value},
@@ -29,8 +28,7 @@ public:
   {
     std::cout << "Camera readed from yaml file. Camera Name:" << m_camera_name
               << " Frame id:" << m_frame_id << " Serial no:" << m_serial_no
-              << " Pixel_format:" << m_pixel_format << " FPS:" << m_fps
-              << " Flip enable:" << m_resize_image << std::endl;
+              << " Pixel_format:" << m_pixel_format << " FPS:" << m_fps << std::endl;
   }
 
   std::string get_camera_name() { return m_camera_name; }
@@ -40,7 +38,6 @@ public:
   uint32_t get_fps() { return m_fps; }
   uint32_t get_horizontal_binning() { return m_horizontal_binning; }
   uint32_t get_vertical_binning() { return m_vertical_binning; }
-  bool get_resize_image() { return m_resize_image; }
   std::string get_url_camera_info() { return m_url_camera_info; }
 
   bool get_enable_exposure_auto() { return m_auto_exposure_enable; }
@@ -70,7 +67,6 @@ private:
   uint32_t m_fps;
   uint32_t m_horizontal_binning;
   uint32_t m_vertical_binning;
-  bool m_resize_image;
   bool m_auto_exposure_enable;
   float m_auto_exposure_value;  // Only relevant if m_auto_exposure_enable=true
   bool m_gain_auto_enable;

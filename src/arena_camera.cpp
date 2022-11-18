@@ -10,9 +10,7 @@ ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting
   m_serial_no(camera_setting.get_serial_no()),
   m_fps(camera_setting.get_fps()),
   m_horizontal_binning(camera_setting.get_horizontal_binning()),
-  m_vertical_binning(camera_setting.get_vertical_binning()),
-  m_resize_image(camera_setting.get_resize_image()),
-  m_continue_acquiring(true)
+  m_vertical_binning(camera_setting.get_vertical_binning())
 {
   std::cout << "Camera:" << m_cam_idx << " is created." << std::endl;
 }
@@ -20,7 +18,7 @@ ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting
 ArenaCamera::ArenaCamera(
   Arena::IDevice * device, std::string & camera_name, std::string & frame_id,
   std::string & pixel_format, uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning,
-  uint32_t vertical_binning, bool resize_image)
+  uint32_t vertical_binning)
 : m_device(device),
   m_camera_name(camera_name),
   m_frame_id(frame_id),
@@ -28,8 +26,7 @@ ArenaCamera::ArenaCamera(
   m_serial_no(serial_no),
   m_fps(fps),
   m_horizontal_binning(horizontal_binning),
-  m_vertical_binning(vertical_binning),
-  m_resize_image(resize_image)
+  m_vertical_binning(vertical_binning)
 {
   std::cout << "Camera:" << m_cam_idx << " is created." << std::endl;
 }
@@ -136,6 +133,5 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
 ArenaCamera::~ArenaCamera()
 {
   std::cout << "Camera:" << m_cam_idx << " ~ArenaCamera()" << std::endl;
-  m_continue_acquiring = false;
   stop_stream();
 }

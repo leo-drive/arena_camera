@@ -60,7 +60,7 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     static_cast<uint32_t>(declare_parameter<int64_t>("fps", fps_descriptor)),
     static_cast<uint32_t>(declare_parameter<int64_t>("horizontal_binning")),
     static_cast<uint32_t>(declare_parameter<int64_t>("vertical_binning")),
-    declare_parameter<bool>("resize_image"), declare_parameter<std::string>("camera_info_url"),
+    declare_parameter<std::string>("camera_info_url"),
     declare_parameter<bool>("exposure_auto"),
     static_cast<float>(declare_parameter<int64_t>("exposure_target", auto_exposure_descriptor)),
     declare_parameter<bool>("gain_auto"),

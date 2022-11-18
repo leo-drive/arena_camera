@@ -8,7 +8,6 @@
       fps: 20
       width: 720
       height: 465
-      resize_image: false
       camera_info_url: "file:///home/volt/projects/volt_drivers_ws/src/arena_camera/config/camera_front_quarter.yaml"
     camera_2:
       frame_id: "camera_left/camera_link"
@@ -17,7 +16,6 @@
       fps: 15
       width: 720
       height: 465
-      resize_image: false
       camera_info_url: "file:///home/volt/projects/volt_drivers_ws/src/arena_camera/config/camera_left_quarter.yaml"
     camera_3:
       frame_id: "camera_right/camera_link"
@@ -26,5 +24,4 @@
       fps: 15
       width: 720
       height: 465
-      resize_image: false
       camera_info_url: "file:///home/volt/projects/volt_drivers_ws/src/arena_camera/config/camera_right_quarter.yaml"

@@ -21,7 +21,7 @@ public:
   ArenaCamera(
     Arena::IDevice * device, std::string & camera_name, std::string & frame_id,
     std::string & pixel_format, uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning,
-    uint32_t vertical_binning, bool resize_image);
+    uint32_t vertical_binning);
 
   ArenaCamera();
 
@@ -71,11 +71,7 @@ private:
 
   uint32_t m_reached_vertical_binning;
 
-  bool m_resize_image;
-
   std::shared_future<void> future_;
-
-  bool m_continue_acquiring{false};
 
   Arena::IImage * pImage = nullptr;
 };
