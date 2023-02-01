@@ -33,63 +33,56 @@ from launch import LaunchContext
 
 import yaml
 
+def get_param_path(path):
+    return os.path.join(
+        FindPackageShare("arena_camera").perform(LaunchContext()),
+        path
+    )
+def get_param_yaml(path):
+    with open(path, "r") as f:
+        camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
+    return camera_yaml_param
 
+def get_parameters(param):
+    return [{"camera_name": param['camera_name'],
+             "frame_id": param['frame_id'],
+             "pixel_format": param['pixel_format'],
+             "serial_no": param['serial_no'],
+             "camera_info_url": param['camera_info_url'],
+             "fps": param['fps'],
+             "horizontal_binning": param['horizontal_binning'],
+             "vertical_binning": param['vertical_binning'],
+             "use_default_device_settings": param['use_default_device_settings'],
+             "exposure_auto": param['exposure_auto'],
+             "exposure_target": param['exposure_target'],
+             "gain_auto": param['gain_auto'],
+             "gain_target": param['gain_target'],
+             "gamma_target": param['gamma_target'],
+             }]
 def generate_launch_description():
     launch_arguments = []
 
-    context = LaunchContext()
-
     # get camera param paths
-    f_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/f_camera.param.yaml"
-    )
-    fr_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/fr_camera.param.yaml"
-    )
-    fl_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/fl_camera.param.yaml"
-    )
-    mr_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/mr_camera.param.yaml"
-    )
-    ml_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/ml_camera.param.yaml"
-    )
-    br_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/br_camera.param.yaml"
-    )
-    bl_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/bl_camera.param.yaml"
-    )
-    b_camera_param_path = os.path.join(
-        FindPackageShare("arena_camera").perform(context),
-        "param/b_camera.param.yaml"
-    )
+    f_camera_param_path = get_param_path("param/f_camera.param.yaml")
+    fr_camera_param_path = get_param_path("param/fr_camera.param.yaml")
+    fl_camera_param_path = get_param_path("param/fl_camera.param.yaml")
+    mr_camera_param_path = get_param_path("param/mr_camera.param.yaml")
+    ml_camera_param_path = get_param_path("param/ml_camera.param.yaml")
+    br_camera_param_path = get_param_path("param/br_camera.param.yaml")
+    bl_camera_param_path = get_param_path("param/bl_camera.param.yaml")
+    b_camera_param_path = get_param_path("param/b_camera.param.yaml")
 
-    with open(f_camera_param_path, "r") as f:
-        f_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(fr_camera_param_path, "r") as f:
-        fr_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(fl_camera_param_path, "r") as f:
-        fl_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(mr_camera_param_path, "r") as f:
-        mr_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(ml_camera_param_path, "r") as f:
-        ml_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(br_camera_param_path, "r") as f:
-        br_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(bl_camera_param_path, "r") as f:
-        bl_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
-    with open(b_camera_param_path, "r") as f:
-        b_camera_yaml_param = yaml.safe_load(f)["/**"]["ros__parameters"]
+    # get camera yaml
+    f_camera_yaml_param = get_param_yaml(f_camera_param_path)
+    fr_camera_yaml_param = get_param_yaml(fr_camera_param_path)
+    fl_camera_yaml_param = get_param_yaml(fl_camera_param_path)
+    mr_camera_yaml_param = get_param_yaml(mr_camera_param_path)
+    ml_camera_yaml_param = get_param_yaml(ml_camera_param_path)
+    br_camera_yaml_param = get_param_yaml(br_camera_param_path)
+    bl_camera_yaml_param = get_param_yaml(bl_camera_param_path)
+    b_camera_yaml_param = get_param_yaml(b_camera_param_path)
 
+    # camera containers
     container_f = ComposableNodeContainer(
         name="camera_node_f",
         namespace="/perception/object_detection",
@@ -100,21 +93,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_f",
-                parameters=[{"camera_name": f_camera_yaml_param['camera_name'],
-                             "frame_id": f_camera_yaml_param['frame_id'],
-                             "pixel_format": f_camera_yaml_param['pixel_format'],
-                             "serial_no": f_camera_yaml_param['serial_no'],
-                             "camera_info_url": f_camera_yaml_param['camera_info_url'],
-                             "fps": f_camera_yaml_param['fps'],
-                             "horizontal_binning": f_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": f_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": f_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": f_camera_yaml_param['exposure_auto'],
-                             "exposure_target": f_camera_yaml_param['exposure_target'],
-                             "gain_auto": f_camera_yaml_param['gain_auto'],
-                             "gain_target": f_camera_yaml_param['gain_target'],
-                             "gamma_target": f_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(f_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -134,21 +113,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_fr",
-                parameters=[{"camera_name": fr_camera_yaml_param['camera_name'],
-                             "frame_id": fr_camera_yaml_param['frame_id'],
-                             "pixel_format": fr_camera_yaml_param['pixel_format'],
-                             "serial_no": fr_camera_yaml_param['serial_no'],
-                             "camera_info_url": fr_camera_yaml_param['camera_info_url'],
-                             "fps": fr_camera_yaml_param['fps'],
-                             "horizontal_binning": fr_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": fr_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": fr_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": fr_camera_yaml_param['exposure_auto'],
-                             "exposure_target": fr_camera_yaml_param['exposure_target'],
-                             "gain_auto": fr_camera_yaml_param['gain_auto'],
-                             "gain_target": fr_camera_yaml_param['gain_target'],
-                             "gamma_target": fr_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(fr_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -168,21 +133,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_fl",
-                parameters=[{"camera_name": fl_camera_yaml_param['camera_name'],
-                             "frame_id": fl_camera_yaml_param['frame_id'],
-                             "pixel_format": fl_camera_yaml_param['pixel_format'],
-                             "serial_no": fl_camera_yaml_param['serial_no'],
-                             "camera_info_url": fl_camera_yaml_param['camera_info_url'],
-                             "fps": fl_camera_yaml_param['fps'],
-                             "horizontal_binning": fl_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": fl_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": fl_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": fl_camera_yaml_param['exposure_auto'],
-                             "exposure_target": fl_camera_yaml_param['exposure_target'],
-                             "gain_auto": fl_camera_yaml_param['gain_auto'],
-                             "gain_target": fl_camera_yaml_param['gain_target'],
-                             "gamma_target": fl_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(fl_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -202,21 +153,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_mr",
-                parameters=[{"camera_name": mr_camera_yaml_param['camera_name'],
-                             "frame_id": mr_camera_yaml_param['frame_id'],
-                             "pixel_format": mr_camera_yaml_param['pixel_format'],
-                             "serial_no": mr_camera_yaml_param['serial_no'],
-                             "camera_info_url": mr_camera_yaml_param['camera_info_url'],
-                             "fps": mr_camera_yaml_param['fps'],
-                             "horizontal_binning": mr_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": mr_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": mr_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": mr_camera_yaml_param['exposure_auto'],
-                             "exposure_target": mr_camera_yaml_param['exposure_target'],
-                             "gain_auto": mr_camera_yaml_param['gain_auto'],
-                             "gain_target": mr_camera_yaml_param['gain_target'],
-                             "gamma_target": mr_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(mr_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -236,21 +173,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_ml",
-                parameters=[{"camera_name": ml_camera_yaml_param['camera_name'],
-                             "frame_id": ml_camera_yaml_param['frame_id'],
-                             "pixel_format": ml_camera_yaml_param['pixel_format'],
-                             "serial_no": ml_camera_yaml_param['serial_no'],
-                             "camera_info_url": ml_camera_yaml_param['camera_info_url'],
-                             "fps": ml_camera_yaml_param['fps'],
-                             "horizontal_binning": ml_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": ml_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": ml_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": ml_camera_yaml_param['exposure_auto'],
-                             "exposure_target": ml_camera_yaml_param['exposure_target'],
-                             "gain_auto": ml_camera_yaml_param['gain_auto'],
-                             "gain_target": ml_camera_yaml_param['gain_target'],
-                             "gamma_target": ml_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(ml_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -270,21 +193,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_br",
-                parameters=[{"camera_name": br_camera_yaml_param['camera_name'],
-                             "frame_id": br_camera_yaml_param['frame_id'],
-                             "pixel_format": br_camera_yaml_param['pixel_format'],
-                             "serial_no": br_camera_yaml_param['serial_no'],
-                             "camera_info_url": br_camera_yaml_param['camera_info_url'],
-                             "fps": br_camera_yaml_param['fps'],
-                             "horizontal_binning": br_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": br_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": br_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": br_camera_yaml_param['exposure_auto'],
-                             "exposure_target": br_camera_yaml_param['exposure_target'],
-                             "gain_auto": br_camera_yaml_param['gain_auto'],
-                             "gain_target": br_camera_yaml_param['gain_target'],
-                             "gamma_target": br_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(br_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -304,21 +213,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_bl",
-                parameters=[{"camera_name": bl_camera_yaml_param['camera_name'],
-                             "frame_id": bl_camera_yaml_param['frame_id'],
-                             "pixel_format": bl_camera_yaml_param['pixel_format'],
-                             "serial_no": bl_camera_yaml_param['serial_no'],
-                             "camera_info_url": bl_camera_yaml_param['camera_info_url'],
-                             "fps": bl_camera_yaml_param['fps'],
-                             "horizontal_binning": bl_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": bl_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": bl_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": bl_camera_yaml_param['exposure_auto'],
-                             "exposure_target": bl_camera_yaml_param['exposure_target'],
-                             "gain_auto": bl_camera_yaml_param['gain_auto'],
-                             "gain_target": bl_camera_yaml_param['gain_target'],
-                             "gamma_target": bl_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(bl_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -338,21 +233,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_b",
-                parameters=[{"camera_name": b_camera_yaml_param['camera_name'],
-                             "frame_id": b_camera_yaml_param['frame_id'],
-                             "pixel_format": b_camera_yaml_param['pixel_format'],
-                             "serial_no": b_camera_yaml_param['serial_no'],
-                             "camera_info_url": b_camera_yaml_param['camera_info_url'],
-                             "fps": b_camera_yaml_param['fps'],
-                             "horizontal_binning": b_camera_yaml_param['horizontal_binning'],
-                             "vertical_binning": b_camera_yaml_param['vertical_binning'],
-                             "use_default_device_settings": b_camera_yaml_param['use_default_device_settings'],
-                             "exposure_auto": b_camera_yaml_param['exposure_auto'],
-                             "exposure_target": b_camera_yaml_param['exposure_target'],
-                             "gain_auto": b_camera_yaml_param['gain_auto'],
-                             "gain_target": b_camera_yaml_param['gain_target'],
-                             "gamma_target": b_camera_yaml_param['gamma_target'],
-                             }],
+                parameters=get_parameters(b_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
