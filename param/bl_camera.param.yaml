@@ -4,7 +4,7 @@
     frame_id: "CAM_BL/camera_link"
     pixel_format: bgr8
     serial_no: 220300080
-    camera_info_url: "file:///home/leodrive/projects/humble_drivers/arena/src/arena_camera/config/camera_bl_info.yaml"
+    camera_info_url: "file:///home/leodrive/projects/autoware/src/sensor_component/external/arena_camera/config/camera_bl_info.yaml"
     fps: 15
     horizontal_binning: 1
     vertical_binning: 1
