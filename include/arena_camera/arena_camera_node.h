@@ -47,6 +47,7 @@ private:
   using CameraInfoPublisherT = ::rclcpp::Publisher<::sensor_msgs::msg::CameraInfo>;
 
   PublisherT::SharedPtr m_publisher{};
+  PublisherT::SharedPtr m_rect_publisher{};
   CameraInfoPublisherT::SharedPtr m_camera_info_publisher{};
 
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info{};

@@ -24,6 +24,9 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
   m_publisher = this->create_publisher<sensor_msgs::msg::Image>(
     create_camera_topic_name(camera_settings.get_camera_name()) + "/image",
     rclcpp::SensorDataQoS());
+  m_rect_publisher = this->create_publisher<sensor_msgs::msg::Image>(
+    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_rect",
+    rclcpp::SensorDataQoS());
   m_camera_info_publisher = this->create_publisher<sensor_msgs::msg::CameraInfo>(
     create_camera_topic_name(camera_settings.get_camera_name()) + "/camera_info",
     rclcpp::SensorDataQoS());
@@ -86,6 +89,21 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
 
   } catch (...) {
     throw std::runtime_error("Runtime error, publish_image.");
+  }
+
+  if(1){ // add param for enable rectify image publishing
+    sensor_msgs::msg::Image img_rect_msg;
+    cv_bridge::CvImage img_bridge_rect =
+      cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8);
+    (void)img_bridge_rect;
+
+    cv_bridge::CvImagePtr cv_img_raw = cv_bridge::toCvCopy(img_msg, img_msg.encoding);
+    m_camera_model.fromCameraInfo(m_camera_info->getCameraInfo());
+    m_camera_model.rectifyImage(cv_img_raw->image, img_bridge_rect.image);
+
+    img_bridge_rect.toImageMsg(img_rect_msg);
+
+    m_rect_publisher->publish(std::move(img_rect_msg));
   }
 
   m_publisher->publish(std::move(img_msg));
