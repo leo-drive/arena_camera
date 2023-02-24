@@ -62,6 +62,8 @@ def generate_launch_description():
                              "fps": camera_yaml_param['fps'],
                              "horizontal_binning": camera_yaml_param['horizontal_binning'],
                              "vertical_binning": camera_yaml_param['vertical_binning'],
+                             "enable_compressing": param['enable_compressing'],
+                             "use_default_device_settings": param['use_default_device_settings'],
                              "use_default_device_settings": camera_yaml_param['use_default_device_settings'],
                              "exposure_auto": camera_yaml_param['exposure_auto'],
                              "exposure_target": camera_yaml_param['exposure_target'],
