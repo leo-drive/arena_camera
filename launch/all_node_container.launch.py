@@ -52,6 +52,8 @@ def get_parameters(param):
              "fps": param['fps'],
              "horizontal_binning": param['horizontal_binning'],
              "vertical_binning": param['vertical_binning'],
+             "enable_rectifying": param['enable_rectifying'],
+             "enable_compressing": param['enable_compressing'],
              "use_default_device_settings": param['use_default_device_settings'],
              "exposure_auto": param['exposure_auto'],
              "exposure_target": param['exposure_target'],
