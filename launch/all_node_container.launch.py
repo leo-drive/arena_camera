@@ -70,9 +70,9 @@ def generate_launch_description():
     fl_camera_param_path = get_param_path("param/front_left_camera.param.yaml")
     mr_camera_param_path = get_param_path("param/middle_right_camera.param.yaml")
     ml_camera_param_path = get_param_path("param/middle_left_camera.param.yaml")
-    br_camera_param_path = get_param_path("param/back_right_camera.param.yaml")
-    bl_camera_param_path = get_param_path("param/back_left_camera.param.yaml")
-    b_camera_param_path = get_param_path("param/back_camera.param.yaml")
+    br_camera_param_path = get_param_path("param/rear_right_camera.param.yaml")
+    bl_camera_param_path = get_param_path("param/rear_left_camera.param.yaml")
+    b_camera_param_path = get_param_path("param/rear_camera.param.yaml")
 
     # get camera yaml
     f_camera_yaml_param = get_param_yaml(f_camera_param_path)

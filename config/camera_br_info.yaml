@@ -1,6 +1,6 @@
 image_width: 2880
 image_height: 1860
-camera_name: back_right_camera
+camera_name: rear_right_camera
 camera_matrix:
   rows: 3
   cols: 3
