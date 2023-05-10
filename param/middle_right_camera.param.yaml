@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
-    camera_name: "camera_4"
+    camera_name: "middle_right_camera"
     frame_id: "CAM_MR/camera_link"
     pixel_format: bgr8
     serial_no: 210900914
