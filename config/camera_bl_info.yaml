@@ -1,6 +1,6 @@
 image_width: 2880
 image_height: 1860
-camera_name: camera_5
+camera_name: back_left_camera
 camera_matrix:
   rows: 3
   cols: 3
