@@ -8,8 +8,8 @@
     fps: 15
     horizontal_binning: 1
     vertical_binning: 1
-    enable_rectifying: true
-    enable_compressing: true
+    enable_rectifying: false
+    enable_compressing: false
     use_default_device_settings: true
     # if you use_default_device_settings: true, the following settings are ignored.
     # ROS driver will use the default device settings of the camera.
