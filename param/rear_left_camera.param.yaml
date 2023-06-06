@@ -1,13 +1,13 @@
 /**:
   ros__parameters:
-    camera_name: "camera_5"
+    camera_name: "rear_left_camera"
     frame_id: "CAM_BL/camera_link"
     pixel_format: bgr8
     serial_no: 220300080
-    camera_info_url: "file:///home/leodrive/projects/autoware/src/sensor_component/external/arena_camera/config/camera_bl_info.yaml"
+    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/rear_left_camera.yaml"
     fps: 15
-    horizontal_binning: 1
-    vertical_binning: 1
+    horizontal_binning: 2
+    vertical_binning: 2
     enable_rectifying: true
     enable_compressing: true
     use_default_device_settings: true
