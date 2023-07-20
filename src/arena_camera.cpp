@@ -41,13 +41,13 @@ void ArenaCamera::acquisition()
   auto node_map = m_device->GetNodeMap();
   std::cout << "Camera idx:" << m_cam_idx << " acquisition thread." << std::endl;
 
-  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionMode", "Continuous");
+  // Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionMode", "Continuous");
 
   // Enable stream auto negotiate packet size
-  Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamAutoNegotiatePacketSize", true);
+  // Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamAutoNegotiatePacketSize", true);
 
   // Enable stream packet resend
-  Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
+  // Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
 
   GenApi::CIntegerPtr pBinningHorizontal = m_device->GetNodeMap()->GetNode("BinningHorizontal");
   if (GenApi::IsWritable(pBinningHorizontal)) {
@@ -57,7 +57,7 @@ void ArenaCamera::acquisition()
     } else if (binning_x_to_set > pBinningHorizontal->GetMax()) {
       binning_x_to_set = pBinningHorizontal->GetMax();
     }
-    pBinningHorizontal->SetValue(binning_x_to_set);
+    //pBinningHorizontal->SetValue(binning_x_to_set);
     m_reached_horizontal_binning = pBinningHorizontal->GetValue();
     if (m_reached_horizontal_binning != m_horizontal_binning) {
       RCLCPP_INFO(
@@ -78,7 +78,7 @@ void ArenaCamera::acquisition()
     } else if (binning_y_to_set > pBinningVertical->GetMax()) {
       binning_y_to_set = pBinningVertical->GetMax();
     }
-    pBinningHorizontal->SetValue(binning_y_to_set);
+    //pBinningHorizontal->SetValue(binning_y_to_set);
     m_reached_vertical_binning = pBinningVertical->GetValue();
     if (m_reached_vertical_binning != m_vertical_binning) {
       RCLCPP_INFO(
@@ -110,6 +110,11 @@ void ArenaCamera::set_on_image_callback(ImageCallbackFunction callback)
 
 cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string & frame_id)
 {
+  std::string path_to_save ="/home/nilay/sample_images/";
+  int64_t image_name = pImage->GetTimestamp();
+  std::string image_name_s = std::to_string(image_name);
+  std::string cam_id = std::to_string(m_serial_no);
+
   cv::Mat image_cv =
     cv::Mat(pImage->GetHeight(), pImage->GetWidth(), CV_8UC1, (uint8_t *)pImage->GetData());
 
@@ -121,12 +126,15 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
     m_horizontal_binning / m_reached_horizontal_binning != 1) {
     int ext_vertical_binning = m_vertical_binning / m_reached_vertical_binning;
     int ext_horizontal_binning = m_horizontal_binning / m_reached_horizontal_binning;
-
     cv::resize(
       image_bgr, image_bgr,
       cv::Size(image_bgr.cols / ext_horizontal_binning, image_bgr.rows / ext_vertical_binning));
   }
 
+
+  cv::imwrite(path_to_save +"/"+ cam_id + "/"+ image_name_s +".png", image_bgr);
+  RCLCPP_INFO_STREAM(
+        rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "IMAGE SAVED:       ");
   return image_bgr;
 }
 

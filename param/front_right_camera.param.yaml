@@ -1,15 +1,13 @@
 /**:
   ros__parameters:
-    camera_name: "front_right_camera"
-    frame_id: "CAM_FR/camera_link"
+    camera_name: "camera_1"
+    frame_id: "camera_right/camera_link"
     pixel_format: bgr8
-    serial_no: 210900908
-    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/front_right_camera.yaml"
-    fps: 15
-    horizontal_binning: 2
-    vertical_binning: 2
-    enable_rectifying: true
-    enable_compressing: true
+    serial_no: 220300079
+    camera_info_url: "file:///home/nilay/workspace/tmp/arena_cam_ws/src/arena_camera/config/camera0_info.yaml"
+    fps: 5
+    horizontal_binning: 1
+    vertical_binning: 1
     use_default_device_settings: true
     # if you use_default_device_settings: true, the following settings are ignored.
     # ROS driver will use the default device settings of the camera.

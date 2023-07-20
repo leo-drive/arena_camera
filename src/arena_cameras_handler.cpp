@@ -28,8 +28,9 @@ void ArenaCamerasHandler::create_camera_from_settings(CameraSetting & camera_set
     m_enable_rectifying = camera_settings.get_enable_rectifying();
     m_enable_compressing = camera_settings.get_enable_compressing();
     m_use_default_device_settings = camera_settings.get_use_default_device_settings();
+
     // Prepare camera settings
-    this->set_fps(camera_settings.get_fps());
+    // this->set_fps(camera_settings.get_fps());
 
     if (!m_use_default_device_settings) {
       this->set_auto_exposure(camera_settings.get_enable_exposure_auto());
@@ -38,10 +39,45 @@ void ArenaCamerasHandler::create_camera_from_settings(CameraSetting & camera_set
       this->set_gain_value(camera_settings.get_auto_gain_value());
       this->set_gamma_value(camera_settings.get_gamma_value());
     }
-
     m_cameras = new ArenaCamera(m_device, camera_settings);
-    m_device->RegisterImageCallback(m_cameras);
 
+     GenICam::gcstring ptpStatus = Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "PtpStatus");
+      RCLCPP_ERROR_STREAM(
+        rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "PTP STATUS:       "<<camera_settings.get_serial_no() << ptpStatus);
+
+    if(ptpStatus != "Slave"){
+
+        Arena::SetNodeValue<bool>(
+            m_device->GetNodeMap(),
+            "PtpEnable",
+            false);
+    }
+    while(ptpStatus != "Slave"){
+   
+   // Wait for 2 second and set ptpEnable = true. This will reconnect the cameras to the master clock.
+       rclcpp::sleep_for(std::chrono::milliseconds(2000));
+       Arena::SetNodeValue<bool>(
+            m_device->GetNodeMap(),
+            "PtpEnable",
+            true);
+
+       rclcpp::sleep_for(std::chrono::milliseconds(100));
+
+       Arena::SetNodeValue<bool>(
+             m_device->GetNodeMap(),
+             "PtpSlaveOnly",
+             true);
+      ptpStatus = Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "PtpStatus");
+      RCLCPP_ERROR_STREAM(
+        rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "PTP STATUS Calibrating:    "<<camera_settings.get_serial_no()<<" - " << ptpStatus);
+
+    }
+		// Set acquisition start mode to 'PTPSync'
+		std::cout << "Set acquisition start mode to 'PTPSync'\n";
+		Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionStartMode", "PTPSync");
+    
+    m_device->RegisterImageCallback(m_cameras);
+        
   } else {
     RCLCPP_ERROR(
       rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
@@ -64,11 +100,11 @@ void ArenaCamerasHandler::set_fps(uint32_t fps)
   auto node_map = m_device->GetNodeMap();
   auto max_fps = GenApi::CFloatPtr(node_map->GetNode("AcquisitionFrameRate"))->GetMax();
   if (fps > max_fps || fps < 0) {
-    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
-    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", max_fps);
+    // Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
+    // Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", max_fps);
   } else {
-    Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
-    Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", static_cast<double>(fps));
+    // Arena::SetNodeValue<bool>(node_map, "AcquisitionFrameRateEnable", true);
+    // Arena::SetNodeValue<double>(node_map, "AcquisitionFrameRate", static_cast<double>(fps));
   }
 }
 
@@ -100,7 +136,7 @@ void ArenaCamerasHandler::set_auto_exposure(bool auto_exposure)
     return;
   }
   GenICam_3_3_LUCID::gcstring exposure_auto = auto_exposure ? "Continuous" : "Off";
-  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", exposure_auto);
+  // Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "ExposureAuto", exposure_auto);
 }
 
 void ArenaCamerasHandler::set_exposure_value(float exposure_value)
@@ -147,7 +183,7 @@ void ArenaCamerasHandler::set_auto_gain(bool auto_gain)
     return;
   }
   GenICam_3_3_LUCID::gcstring gain_auto = auto_gain ? "Continuous" : "Off";
-  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "GainAuto", gain_auto);
+  // Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "GainAuto", gain_auto);
 }
 
 void ArenaCamerasHandler::set_gain_value(float gain_value)

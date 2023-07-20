@@ -131,6 +131,11 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & 
 
   m_publisher->publish(std::move(img_msg));
 
+  cv::namedWindow("Image", cv::WINDOW_NORMAL);
+  cv::imshow("Image", image);
+  cv::waitKey(1);
+  //cv::destroyAllWindows();
+
   if (m_camera_info_publisher) {
     auto ci = std::make_unique<sensor_msgs::msg::CameraInfo>(m_camera_info->getCameraInfo());
     ci->header = img_msg.header;
