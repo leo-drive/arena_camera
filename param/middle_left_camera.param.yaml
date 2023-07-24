@@ -1,10 +1,10 @@
 /**:
   ros__parameters:
-    camera_name: "front_right_camera"
-    frame_id: "CAM_FR/camera_link"
+    camera_name: "middle_left_camera"
+    frame_id: "CAM_ML/camera_link"
     pixel_format: bgr8
-    serial_no: 210900908
-    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/front_right_camera.yaml"
+    serial_no: 210900347
+    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/middle_left_camera.yaml"
     fps: 15
     horizontal_binning: 2
     vertical_binning: 2
