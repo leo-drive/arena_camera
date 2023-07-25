@@ -41,13 +41,13 @@ void ArenaCamera::acquisition()
   auto node_map = m_device->GetNodeMap();
   std::cout << "Camera idx:" << m_cam_idx << " acquisition thread." << std::endl;
 
-  // Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionMode", "Continuous");
+  Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "AcquisitionMode", "Continuous");
 
   // Enable stream auto negotiate packet size
-  // Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamAutoNegotiatePacketSize", true);
+  Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamAutoNegotiatePacketSize", true);
 
   // Enable stream packet resend
-  // Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
+  Arena::SetNodeValue<bool>(m_device->GetTLStreamNodeMap(), "StreamPacketResendEnable", true);
 
   GenApi::CIntegerPtr pBinningHorizontal = m_device->GetNodeMap()->GetNode("BinningHorizontal");
   if (GenApi::IsWritable(pBinningHorizontal)) {
@@ -57,7 +57,7 @@ void ArenaCamera::acquisition()
     } else if (binning_x_to_set > pBinningHorizontal->GetMax()) {
       binning_x_to_set = pBinningHorizontal->GetMax();
     }
-    //pBinningHorizontal->SetValue(binning_x_to_set);
+    pBinningHorizontal->SetValue(binning_x_to_set);
     m_reached_horizontal_binning = pBinningHorizontal->GetValue();
     if (m_reached_horizontal_binning != m_horizontal_binning) {
       RCLCPP_INFO(
@@ -78,7 +78,7 @@ void ArenaCamera::acquisition()
     } else if (binning_y_to_set > pBinningVertical->GetMax()) {
       binning_y_to_set = pBinningVertical->GetMax();
     }
-    //pBinningHorizontal->SetValue(binning_y_to_set);
+    pBinningHorizontal->SetValue(binning_y_to_set);
     m_reached_vertical_binning = pBinningVertical->GetValue();
     if (m_reached_vertical_binning != m_vertical_binning) {
       RCLCPP_INFO(
@@ -132,9 +132,9 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
   }
 
 
-  cv::imwrite(path_to_save +"/"+ cam_id + "/"+ image_name_s +".png", image_bgr);
-  RCLCPP_INFO_STREAM(
-        rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "IMAGE SAVED:       ");
+  // cv::imwrite(path_to_save +"/"+ cam_id + "/"+ image_name_s +".png", image_bgr);
+  // RCLCPP_INFO_STREAM(
+        // rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "IMAGE SAVED:       ");
   return image_bgr;
 }
 

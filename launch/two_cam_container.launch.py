@@ -51,8 +51,8 @@ def get_parameters(param):
              "fps": param['fps'],
              "horizontal_binning": param['horizontal_binning'],
              "vertical_binning": param['vertical_binning'],
-            #  "enable_rectifying": param['enable_rectifying'],
-            #  "enable_compressing": param['enable_compressing'],
+             "enable_rectifying": param['enable_rectifying'],
+             "enable_compressing": param['enable_compressing'],
              "use_default_device_settings": param['use_default_device_settings'],
              "exposure_auto": param['exposure_auto'],
              "exposure_target": param['exposure_target'],
@@ -64,18 +64,18 @@ def generate_launch_description():
     launch_arguments = []
 
     # get camera param paths
-    f_camera_param_path = get_param_path("param/front_camera.param.yaml")
-    fr_camera_param_path = get_param_path("param/front_right_camera.param.yaml")
+    ml_camera_param_path = get_param_path("param/middle_left_camera.param.yaml")
+    mr_camera_param_path = get_param_path("param/middle_right_camera.param.yaml")
 
 
     # get camera yaml
-    f_camera_yaml_param = get_param_yaml(f_camera_param_path)
-    fr_camera_yaml_param = get_param_yaml(fr_camera_param_path)
+    ml_camera_yaml_param = get_param_yaml(ml_camera_param_path)
+    mr_camera_yaml_param = get_param_yaml(mr_camera_param_path)
 
 
     # camera containers
     container_f = ComposableNodeContainer(
-        name="camera_node_f",
+        name="camera_node_ml",
         namespace="/perception/object_detection",
         package="rclcpp_components",
         executable="component_container",
@@ -84,7 +84,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_f",
-                parameters=get_parameters(f_camera_yaml_param),
+                parameters=get_parameters(ml_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
@@ -95,7 +95,7 @@ def generate_launch_description():
         output="both",
     )
     container_fr = ComposableNodeContainer(
-        name="camera_node_fr",
+        name="camera_node_mr",
         namespace="/perception/object_detection",
         package="rclcpp_components",
         executable="component_container",
@@ -104,7 +104,7 @@ def generate_launch_description():
                 package="arena_camera",
                 plugin="ArenaCameraNode",
                 name="arena_camera_node_fr",
-                parameters=get_parameters(fr_camera_yaml_param),
+                parameters=get_parameters(mr_camera_yaml_param),
                 remappings=[
                 ],
                 extra_arguments=[
