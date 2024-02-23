@@ -19,6 +19,7 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
   m_arena_camera_handler = std::make_unique<ArenaCamerasHandler>();
   m_arena_camera_handler->create_camera_from_settings(camera_settings);
   this->m_frame_id = camera_settings.get_frame_id();
+  this->m_use_camera_timestamp = camera_settings.get_use_camera_timestamp();
 
   init_camera_info(camera_settings.get_camera_name(), camera_settings.get_url_camera_info());
   m_publisher = this->create_publisher<sensor_msgs::msg::Image>(
@@ -66,21 +67,43 @@ CameraSetting ArenaCameraNode::read_camera_settings()
     declare_parameter<bool>("gain_auto"),
     static_cast<float>(declare_parameter<int64_t>("gain_target", gain_descriptor)),
     declare_parameter<float>("gamma_target"),
-    declare_parameter<bool>("use_default_device_settings"));
+    declare_parameter<bool>("use_default_device_settings"),
+    declare_parameter<bool>("use_camera_timestamp"));
 
   return camera_setting;
 }
 
-void ArenaCameraNode::publish_image(std::uint32_t camera_index, const cv::Mat & image)
+void ArenaCameraNode::publish_image(std::uint32_t camera_index, std::shared_ptr<Image> image)
 {
   sensor_msgs::msg::Image img_msg;
   std_msgs::msg::Header header;
-  header.stamp = this->now();
+
   header.frame_id = m_frame_id;
+
+  if (!m_use_camera_timestamp)
+  {
+    header.stamp = this->now();
+  }
+  else
+  {
+    if (image->ptp_status != "Slave")
+    {
+      rclcpp::Time image_stamp = rclcpp::Time(image->image_timestamp_ns);
+      header.stamp = image_stamp;
+      RCLCPP_WARN_STREAM_THROTTLE(this->get_logger(), *this->get_clock(), 1000, "Check PTP Server. Status: " << image->ptp_status);
+
+    }
+    else
+    {
+      rclcpp::Time image_stamp = rclcpp::Time(image->image_timestamp_ns);
+      header.stamp = image_stamp;
+    }
+  }
+
 
   try {
     cv_bridge::CvImage img_bridge =
-      cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, image);
+      cv_bridge::CvImage(header, sensor_msgs::image_encodings::BGR8, image->cv_image);
     (void)img_bridge;
     img_bridge.toImageMsg(img_msg);
 

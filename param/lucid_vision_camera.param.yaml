@@ -16,3 +16,4 @@
     gain_auto: true
     gain_target: 1
     gamma_target: 1.0
+    use_camera_timestamp: true

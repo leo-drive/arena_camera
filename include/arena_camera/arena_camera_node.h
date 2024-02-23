@@ -27,7 +27,7 @@ public:
   CameraSetting read_camera_settings();
 
 private:
-  void publish_image(std::uint32_t camera_index, const cv::Mat & image);
+  void publish_image(std::uint32_t camera_index, std::shared_ptr<Image> image);
 
   void init_camera_info(std::string camera_name, std::string camera_info_url);
 
@@ -52,6 +52,7 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info{};
   image_geometry::PinholeCameraModel m_camera_model;
   std::string m_frame_id;
+  bool m_use_camera_timestamp;
 };
 
 #endif  // BUILD_SRC_ARENA_CAMERA_SRC_ARENA_CAMERA_NODE_H_

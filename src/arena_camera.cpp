@@ -2,7 +2,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 
-ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting)
+ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting, std::string & ptp_status_)
 : m_device(device),
   m_camera_name(camera_setting.get_camera_name()),
   m_frame_id(camera_setting.get_frame_id()),
@@ -10,7 +10,8 @@ ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting
   m_serial_no(camera_setting.get_serial_no()),
   m_fps(camera_setting.get_fps()),
   m_horizontal_binning(camera_setting.get_horizontal_binning()),
-  m_vertical_binning(camera_setting.get_vertical_binning())
+  m_vertical_binning(camera_setting.get_vertical_binning()),
+  m_ptp_status_(ptp_status_)
 {
   std::cout << "Camera:" << m_cam_idx << " is created." << std::endl;
 }
@@ -18,7 +19,7 @@ ArenaCamera::ArenaCamera(Arena::IDevice * device, CameraSetting & camera_setting
 ArenaCamera::ArenaCamera(
   Arena::IDevice * device, std::string & camera_name, std::string & frame_id,
   std::string & pixel_format, uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning,
-  uint32_t vertical_binning)
+  uint32_t vertical_binning, std::string & ptp_status_)
 : m_device(device),
   m_camera_name(camera_name),
   m_frame_id(frame_id),
@@ -26,7 +27,8 @@ ArenaCamera::ArenaCamera(
   m_serial_no(serial_no),
   m_fps(fps),
   m_horizontal_binning(horizontal_binning),
-  m_vertical_binning(vertical_binning)
+  m_vertical_binning(vertical_binning),
+  m_ptp_status_(ptp_status_)
 {
   std::cout << "Camera:" << m_cam_idx << " is created." << std::endl;
 }
@@ -108,7 +110,7 @@ void ArenaCamera::set_on_image_callback(ImageCallbackFunction callback)
   m_signal_publish_image = std::move(callback);
 }
 
-cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string & frame_id)
+std::shared_ptr<Image> ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string & frame_id)
 {
   cv::Mat image_cv =
     cv::Mat(pImage->GetHeight(), pImage->GetWidth(), CV_8UC1, (uint8_t *)pImage->GetData());
@@ -127,7 +129,15 @@ cv::Mat ArenaCamera::convert_to_image(Arena::IImage * pImage, const std::string 
       cv::Size(image_bgr.cols / ext_horizontal_binning, image_bgr.rows / ext_vertical_binning));
   }
 
-  return image_bgr;
+  auto image = std::make_shared<Image>(image_bgr,
+                                       pImage->GetTimestampNs(),
+                                       m_pixel_format,
+                                       m_ptp_status_
+                                       );
+
+  return image;
+
+
 }
 
 ArenaCamera::~ArenaCamera()
