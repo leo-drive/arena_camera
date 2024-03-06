@@ -22,13 +22,13 @@ ArenaCameraNode::ArenaCameraNode(rclcpp::NodeOptions node_options)
 
   init_camera_info(camera_settings.get_camera_name(), camera_settings.get_url_camera_info());
   m_publisher = this->create_publisher<sensor_msgs::msg::Image>(
-    create_camera_topic_name(camera_settings.get_camera_name()) + "/image",
+    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_raw",
     rclcpp::QoS{1}.reliable());
   m_rect_publisher = this->create_publisher<sensor_msgs::msg::Image>(
-    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_rect",
+    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_rect_color",
     rclcpp::QoS{1}.reliable());
   m_compressed_publisher = this->create_publisher<sensor_msgs::msg::CompressedImage>(
-    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_compressed",
+    create_camera_topic_name(camera_settings.get_camera_name()) + "/image_raw/compressed",
     rclcpp::QoS{1}.reliable());
   m_camera_info_publisher = this->create_publisher<sensor_msgs::msg::CameraInfo>(
     create_camera_topic_name(camera_settings.get_camera_name()) + "/camera_info",

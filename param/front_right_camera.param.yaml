@@ -4,7 +4,7 @@
     frame_id: "CAM_FR/camera_link"
     pixel_format: bgr8
     serial_no: 210900908
-    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/front_right_camera.yaml"
+    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/camera_0.yaml"
     fps: 15
     horizontal_binning: 2
     vertical_binning: 2

@@ -36,7 +36,7 @@ private:
 
   static std::string create_camera_topic_name(std::string camera_name)
   {
-    return "/lucid_vision/" + camera_name;
+    return camera_name;
   }
 
   std::unique_ptr<ArenaCamerasHandler> m_arena_camera_handler;

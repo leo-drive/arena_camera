@@ -65,8 +65,8 @@ def generate_launch_description():
     launch_arguments = []
 
     # get camera param paths
-    f_camera_param_path = get_param_path("param/front_camera.yaml")
-    fr_camera_param_path = get_param_path("param/front_right_camera.yaml")
+    f_camera_param_path = get_param_path("param/camera1.yaml")
+    fr_camera_param_path = get_param_path("param/camera_0.yaml")
     fl_camera_param_path = get_param_path("param/front_left_camera.yaml")
     mr_camera_param_path = get_param_path("param/middle_right_camera.yaml")
     ml_camera_param_path = get_param_path("param/middle_left_camera.yaml")
