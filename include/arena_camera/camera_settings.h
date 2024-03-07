@@ -11,7 +11,9 @@ public:
     const std::string & camera_name, const std::string & frame_id, const std::string & pixel_format,
     uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning, uint32_t vertical_binning,
     const std::string & url_camera_info, bool exposure_auto, float exposure_value, bool gain_auto,
-    float gain_value, float gamma_value, bool enable_rectifying, bool enable_compressing, bool use_default_device_settings)
+    float gain_value, float gamma_value, bool enable_rectifying, bool enable_compressing, bool use_default_device_settings,
+    bool use_camera_timestamp)
+
   : m_camera_name{camera_name},
     m_frame_id{frame_id},
     m_pixel_format{pixel_format},
@@ -27,7 +29,9 @@ public:
     m_gamma_value{gamma_value},
     m_enable_rectifying{enable_rectifying},
     m_enable_compressing{enable_compressing},
-    m_use_default_device_settings{use_default_device_settings}
+    m_use_default_device_settings{use_default_device_settings},
+    m_use_camera_timestamp{use_camera_timestamp}
+
   {
     std::cout << "Camera readed from yaml file. Camera Name:" << m_camera_name
               << " Frame id:" << m_frame_id << " Serial no:" << m_serial_no
@@ -79,6 +83,8 @@ public:
     m_use_default_device_settings = use_default_device_settings;
   }
 
+  bool get_use_camera_timestamp() { return m_use_camera_timestamp; }
+
 private:
   std::string m_url_camera_info;
   std::string m_camera_name;
@@ -96,6 +102,8 @@ private:
   bool m_enable_rectifying;
   bool m_enable_compressing;
   bool m_use_default_device_settings;
+  bool m_use_camera_timestamp;
+
 };
 
 #endif  // BUILD_CAMERA_SETTINGS_H
