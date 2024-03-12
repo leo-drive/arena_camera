@@ -28,6 +28,7 @@ ament_auto_add_library(arena_camera_node SHARED
         "include/arena_camera/arena_camera_node.h"
         "include/arena_camera/arena_cameras_handler.h"
         "include/arena_camera/camera_settings.h"
+        "include/arena_camera/arena_image.h"
         "src/arena_camera_node.cpp"
         "src/arena_camera.cpp"
         "src/arena_cameras_handler.cpp")

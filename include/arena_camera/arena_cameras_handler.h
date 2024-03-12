@@ -50,6 +50,14 @@ public:
 
   bool get_use_default_device_settings();
 
+  void set_ptp_status(bool use_ptp);
+
+  bool ptp_enable();
+
+  bool ptp_disable();
+
+  void set_pixel_format(std::string pixel_format);
+
 private:
   ArenaCamera * m_cameras;
 
@@ -60,6 +68,143 @@ private:
   bool m_enable_rectifying;
   bool m_enable_compressing;
   bool m_use_default_device_settings;
+
+  std::string m_ptp_status_;
+
+  enum PixelFormat
+  {
+    UNKNOWN_FORMAT,
+    MONO8,
+    MONO16,
+    BGR8,
+    RGB8,
+    BAYER_BGGR8,
+    BAYER_GBRG8,
+    BAYER_RGGB8,
+    BAYER_RGGB16,
+  };
+
+  inline std::string PixelFormatToArenaString(PixelFormat pixel_format)
+  {
+    switch (pixel_format)
+    {
+    case PixelFormat::MONO8:
+      return "Mono8";
+    case PixelFormat::MONO16:
+      return "Mono16";
+    case PixelFormat::BGR8:
+      return "BGR8";
+    case PixelFormat::RGB8:
+      return "RGB8";
+    case PixelFormat::BAYER_BGGR8:
+      return "BayerBG8";
+    case PixelFormat::BAYER_GBRG8:
+      return "BayerGB8";
+    case PixelFormat::BAYER_RGGB8:
+      return "BayerRG8";
+    case PixelFormat::BAYER_RGGB16:
+      return "BayerRG16";
+    default:
+      return "";
+    }
+  }
+
+  inline PixelFormat ArenaStringToPixelFormat(const std::string& pixel_format_string)
+  {
+    if (pixel_format_string == "Mono8")
+    {
+      return PixelFormat::MONO8;
+    }
+    if (pixel_format_string == "Mono16")
+    {
+      return PixelFormat::MONO16;
+    }
+    if (pixel_format_string == "BGR8")
+    {
+      return PixelFormat::BGR8;
+    }
+    if (pixel_format_string == "RGB8")
+    {
+      return PixelFormat::RGB8;
+    }
+    if (pixel_format_string == "BayerBG8")
+    {
+      return PixelFormat::BAYER_BGGR8;
+    }
+    if (pixel_format_string == "BayerGB8")
+    {
+      return PixelFormat::BAYER_GBRG8;
+    }
+    if (pixel_format_string == "BayerRG8")
+    {
+      return PixelFormat::BAYER_RGGB8;
+    }
+    if (pixel_format_string == "BayerRG16")
+    {
+      return PixelFormat::BAYER_RGGB16;
+    }
+    return PixelFormat::UNKNOWN_FORMAT;
+  }
+  inline std::string PixelFormatToRosString(PixelFormat pixel_format)
+  {
+    switch (pixel_format)
+    {
+    case PixelFormat::MONO8:
+      return "mono8";
+    case PixelFormat::MONO16:
+      return "mono16";
+    case PixelFormat::BGR8:
+      return "bgr8";
+    case PixelFormat::RGB8:
+      return "rgb8";
+    case PixelFormat::BAYER_BGGR8:
+      return "bayer_bggr8";
+    case PixelFormat::BAYER_GBRG8:
+      return "bayer_gbrg8";
+    case PixelFormat::BAYER_RGGB8:
+      return "bayer_rggb8";
+    case PixelFormat::BAYER_RGGB16:
+      return "bayer_rggb16";
+    default:
+      return "";
+    }
+  }
+  inline PixelFormat RosStringToPixelFormat(const std::string& ros_pixel_format_string)
+  {
+    if (ros_pixel_format_string == "mono8")
+    {
+      return PixelFormat::MONO8;
+    }
+    if (ros_pixel_format_string == "mono16")
+    {
+      return PixelFormat::MONO16;
+    }
+    if (ros_pixel_format_string == "bgr8")
+    {
+      return PixelFormat::BGR8;
+    }
+    if (ros_pixel_format_string == "rgb8")
+    {
+      return PixelFormat::RGB8;
+    }
+    if (ros_pixel_format_string == "bayer_bggr8")
+    {
+      return PixelFormat::BAYER_BGGR8;
+    }
+    if (ros_pixel_format_string == "bayer_gbrg8")
+    {
+      return PixelFormat::BAYER_GBRG8;
+    }
+    if (ros_pixel_format_string == "bayer_rggb8")
+    {
+      return PixelFormat::BAYER_RGGB8;
+    }
+    if (ros_pixel_format_string == "bayer_rggb16")
+    {
+      return PixelFormat::BAYER_RGGB16;
+    }
+    return PixelFormat::UNKNOWN_FORMAT;
+  }
 };
 
 #endif  // BUILD_CAMERAS_WRAPPER_H

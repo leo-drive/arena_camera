@@ -1,13 +1,13 @@
 /**:
   ros__parameters:
-    camera_name: "middle_right_camera"
-    frame_id: "CAM_MR/camera_link"
+    camera_name: "camera3"
+    frame_id: "CAM_FL/camera_link"
     pixel_format: bgr8
-    serial_no: 210900914
-    camera_info_url: "file:///home/golf/projects/autoware/src/sensor_component/external/arena_camera/config/half_resolution_cam_info/middle_right_camera.yaml"
-    fps: 15
-    horizontal_binning: 2
-    vertical_binning: 2
+    serial_no: 210900910
+    camera_info_url: "file:///home/golf/projects/golf-v2024.03/autoware.golf/src/sensor_component/external/arena_camera/config/full_resolution_cam_info/camera3.yaml"
+    fps: 10
+    horizontal_binning: 1
+    vertical_binning: 1
     enable_rectifying: true
     enable_compressing: true
     use_default_device_settings: true
@@ -18,3 +18,4 @@
     gain_auto: true
     gain_target: 1
     gamma_target: 1.0
+    use_camera_timestamp: true

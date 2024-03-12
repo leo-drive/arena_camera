@@ -27,7 +27,7 @@ public:
   CameraSetting read_camera_settings();
 
 private:
-  void publish_image(std::uint32_t camera_index, const cv::Mat & image);
+  void publish_image(std::uint32_t camera_index, std::shared_ptr<Image> image);
 
   void init_camera_info(std::string camera_name, std::string camera_info_url);
 
@@ -36,7 +36,7 @@ private:
 
   static std::string create_camera_topic_name(std::string camera_name)
   {
-    return "/lucid_vision/" + camera_name;
+    return camera_name;
   }
 
   std::unique_ptr<ArenaCamerasHandler> m_arena_camera_handler;
@@ -54,6 +54,7 @@ private:
   std::shared_ptr<camera_info_manager::CameraInfoManager> m_camera_info{};
   image_geometry::PinholeCameraModel m_camera_model;
   std::string m_frame_id;
+  bool m_use_camera_timestamp;
 };
 
 #endif  // BUILD_SRC_ARENA_CAMERA_SRC_ARENA_CAMERA_NODE_H_
