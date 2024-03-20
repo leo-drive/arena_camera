@@ -25,10 +25,15 @@ void ArenaCamerasHandler::create_camera_from_settings(CameraSetting & camera_set
 
   if (it != devicesInfos.end()) {
     m_device = m_p_system->CreateDevice(*it);
-
+      if(camera_settings.get_use_camera_timestamp()){
+        this->set_ptp_status(true);
+      }
+    m_enable_rectifying = camera_settings.get_enable_rectifying();
+    m_enable_compressing = camera_settings.get_enable_compressing();
     m_use_default_device_settings = camera_settings.get_use_default_device_settings();
     // Prepare camera settings
     this->set_fps(camera_settings.get_fps());
+//    this->set_pixel_format(camera_settings.get_pixel_format());
 
     if (!m_use_default_device_settings) {
       this->set_auto_exposure(camera_settings.get_enable_exposure_auto());
@@ -38,7 +43,7 @@ void ArenaCamerasHandler::create_camera_from_settings(CameraSetting & camera_set
       this->set_gamma_value(camera_settings.get_gamma_value());
     }
 
-    m_cameras = new ArenaCamera(m_device, camera_settings);
+    m_cameras = new ArenaCamera(m_device, camera_settings, m_ptp_status_);
     m_device->RegisterImageCallback(m_cameras);
 
   } else {
@@ -206,6 +211,22 @@ void ArenaCamerasHandler::set_gamma_value(float gamma_value)
               << std::endl;
   }
 }
+void ArenaCamerasHandler::set_enable_rectifying(bool enable_rectifying)
+{
+  this->m_enable_rectifying = enable_rectifying;
+}
+bool ArenaCamerasHandler::get_enable_rectifying()
+{
+  return m_enable_rectifying;
+}
+void ArenaCamerasHandler::set_enable_compressing(bool enable_compressing)
+{
+  this->m_enable_compressing = enable_compressing;
+}
+bool ArenaCamerasHandler::get_enable_compressing()
+{
+  return m_enable_compressing;
+}
 void ArenaCamerasHandler::set_use_default_device_settings(bool use_default_device_settings)
 {
   this->m_use_default_device_settings = use_default_device_settings;
@@ -213,4 +234,99 @@ void ArenaCamerasHandler::set_use_default_device_settings(bool use_default_devic
 bool ArenaCamerasHandler::get_use_default_device_settings()
 {
   return m_use_default_device_settings;
+}
+bool ArenaCamerasHandler::ptp_enable()
+{
+    bool success = false;
+    if (m_device != nullptr)
+    {
+        try
+        {
+            Arena::SetNodeValue<bool>(m_device->GetNodeMap(),
+                                      "PtpEnable",
+                                      true);
+            GenICam::gcstring ptpStatus = Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(),
+                                                                                 "PtpStatus");
+            std::cout << "PTPStatus: " << ptpStatus << std::endl;
+            m_ptp_status_ = ptpStatus;
+            success = true;
+        }
+        catch (const GenICam::GenericException &e)
+        {
+            std::cout << "Unable to set 'EnablePtp'. Error: " << e.GetDescription() << std::endl;
+        }
+    }
+    return success;
+}
+
+
+bool ArenaCamerasHandler::ptp_disable() {
+    bool success = false;
+    if (m_device != nullptr)
+    {
+        try
+        {
+            Arena::SetNodeValue<bool>(m_device->GetNodeMap(),
+                                      "PtpEnable",
+                                      false);
+            GenICam::gcstring ptpStatus = Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(),
+                                                                                 "PtpStatus");
+            std::cout << "PTPStatus: " << ptpStatus << std::endl;
+            m_ptp_status_ = ptpStatus;
+            success = true;
+        }
+        catch (const GenICam::GenericException &e)
+        {
+            std::cout << "Unable to set 'DisablePtp'. Error: " << e.GetDescription() << std::endl;
+        }
+    }
+    return success;
+}
+
+void ArenaCamerasHandler::set_ptp_status(bool use_ptp)
+{
+    if (use_ptp)
+    {
+        if (ptp_enable())
+        {
+            RCLCPP_INFO(
+                    rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+                    "Camera Timestamp Enabled (PTP)");
+        }
+    }
+    else
+    {
+        if (ptp_disable())
+        {
+            RCLCPP_INFO(
+                    rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+                    "Camera Timestamp Disabled (PTP)");
+        }
+    }
+}
+
+void ArenaCamerasHandler::set_pixel_format(std::string pixel_format)
+{
+    ArenaCamerasHandler::PixelFormat pixel_format_arena =
+            ArenaCamerasHandler::RosStringToPixelFormat(pixel_format);
+    try
+    {
+        GenICam::gcstring pixelFormatInitial = Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(),
+                                                                                      "PixelFormat");
+
+        GenApi::CEnumerationPtr pPixelFormat = m_device->GetNodeMap()->GetNode("PixelFormat");
+        if (GenApi::IsWritable(pPixelFormat))
+        {
+            std::string str_format = PixelFormatToArenaString(pixel_format_arena);
+            std::cout << "SetPixelFormat. Setting pixel format to " << str_format << std::endl;
+            Arena::SetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(),
+                                                   "PixelFormat",
+                                                   str_format.c_str());
+        }
+    }
+    catch (const GenICam::GenericException &e)
+    {
+        std::cout << "An exception while setting target image encoding to '" << PixelFormatToArenaString(pixel_format_arena)
+                  << "' occurred: " << e.GetDescription() << std::endl;
+    }
 }

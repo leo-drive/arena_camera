@@ -1,0 +1,20 @@
+image_width: 2880
+image_height: 1860
+camera_name: camera6
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [ 1758.74597, 0.0, 1466.69036, 0.0, 1760.45307, 893.48029, 0.0, 0.0, 1.0 ]
+distortion_model: plumb_bob
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [ -0.297313, 0.097599, 0.000913, -0.001368, 0.000000 ]
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [ 1, 0, 0, 0, 1, 0, 0, 0, 1 ]
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [ 1758.74597, 0.0, 1466.69036, 0.0, 0.0, 1760.45307, 893.48029, 0.0, 0.0, 0.0, 1.0, 0.0 ]

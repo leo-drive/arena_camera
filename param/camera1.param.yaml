@@ -1,0 +1,21 @@
+/**:
+  ros__parameters:
+    camera_name: "camera1"
+    frame_id: "CAM_ML/camera_link"
+    pixel_format: bgr8
+    serial_no: 210900347
+    camera_info_url: "file:///home/golf/projects/golf-v2024.03/autoware.golf/src/sensor_component/external/arena_camera/config/full_resolution_cam_info/camera1.yaml"
+    fps: 10
+    horizontal_binning: 1
+    vertical_binning: 1
+    enable_rectifying: true
+    enable_compressing: true
+    use_default_device_settings: true
+    # if you use_default_device_settings: true, the following settings are ignored.
+    # ROS driver will use the default device settings of the camera.
+    exposure_auto: true
+    exposure_target: 187
+    gain_auto: true
+    gain_target: 1
+    gamma_target: 1.0
+    use_camera_timestamp: true
