@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+  <arg name="cam_info_folder" default="$(find-pkg-share arena_camera)/config/full_resolution_cam_info"/>
+
+  <let name="param_folder" value="$(find-pkg-share arena_camera)/param"/>
+  <let name="container_name" value="/perception/object_detection/camera_component_container"/>
+
+  <!--  <node pkg="rclcpp_components"-->
+  <!--        exec="component_container_mt"-->
+  <!--        name="camera_component_container"-->
+  <!--        namespace="/perception/object_detection"-->
+  <!--        output="screen"/>-->
+  <!--  <load_composable_node target="$(var container_name)">-->
+<!--  &lt;!&ndash;  </load_composable_node>&ndash;&gt;-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_fr" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_fr">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera0.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_ml" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_ml">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera1.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_f" namespace="/perception/object_detection">
+    <composable_node pkg="arena_camera"
+                     plugin="arena_camera::ArenaCameraNode"
+                     name="arena_camera_node_f">
+      <extra_arg name="use_intra_process_comms" value="true"/>
+      <param from="$(var param_folder)/camera2.param.yaml" allow_substs="true"/>
+    </composable_node>
+  </node_container>
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_fl" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_fl">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera3.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_mr" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_mr">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera4.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_b" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_b">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera5.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_br" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_br">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera6.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+<!--  <node_container pkg="rclcpp_components" exec="component_container_mt" name="camera_component_container_bl" namespace="/perception/object_detection">-->
+<!--    <composable_node pkg="arena_camera"-->
+<!--                     plugin="arena_camera::ArenaCameraNode"-->
+<!--                     name="arena_camera_node_bl">-->
+<!--      <extra_arg name="use_intra_process_comms" value="true"/>-->
+<!--      <param from="$(var param_folder)/camera7.param.yaml" allow_substs="true"/>-->
+<!--    </composable_node>-->
+<!--  </node_container>-->
+
+</launch>

@@ -1,0 +1,23 @@
+/**:
+  ros__parameters:
+    camera_name: "camera4"
+    frame_id: "CAM_MR/camera_link"
+    pixel_format: bgr8
+    serial_no: 210900914
+    camera_info_url: "file:///home/golf/projects/golf-v2024.03/autoware.golf/src/sensor_component/external/arena_camera/config/full_resolution_cam_info/camera4.yaml"
+    fps: 10
+    horizontal_binning: 1
+    vertical_binning: 1
+    enable_rectifying: true
+    enable_compressing: true
+    use_default_device_settings: false # If true, the rest will be ignored
+    exposure_auto: false # If true, the following will be ignored
+    exposure_value: 900.0
+    gain_auto: true # If true, the following will be ignored
+    gain_value: 1.0
+    gamma_value: 1.0
+    use_ptp: true
+    target_brightness: 20
+    exposure_auto_limit_auto: false # If true, the following 2 will be ignored
+    exposure_auto_lower_limit: 3000.0
+    exposure_auto_upper_limit: 10000.0
