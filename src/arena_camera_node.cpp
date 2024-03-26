@@ -65,6 +65,16 @@ CameraSettings ArenaCameraNode::get_camera_settings_from_params()
   target_brightness_range.set__from_value(0).set__to_value(255).set__step(1);
   desc_target_brightness.integer_range = {target_brightness_range};
 
+  auto desc_exposure_damping = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::FloatingPointRange exposure_damping_range;
+  exposure_damping_range.set__from_value(0).set__to_value(100).set__step(1.0);
+  desc_exposure_damping.floating_point_range = {exposure_damping_range};
+
+  auto desc_balance_ratio = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::FloatingPointRange balance_ratio_range;
+  balance_ratio_range.set__from_value(0).set__to_value(100).set__step(1.0);
+  desc_balance_ratio.floating_point_range = {balance_ratio_range};
+
   auto camera_name = declare_parameter<std::string>("camera_name");
   auto frame_id = declare_parameter<std::string>("frame_id");
   auto pixel_format = declare_parameter<std::string>("pixel_format");
@@ -77,7 +87,6 @@ CameraSettings ArenaCameraNode::get_camera_settings_from_params()
   auto exposure_value = declare_parameter<double>("exposure_value", desc_exposure);
   auto gain_auto = declare_parameter<bool>("gain_auto");
   auto gain_value = declare_parameter<double>("gain_value", desc_gain);
-  auto gamma_value = declare_parameter<double>("gamma_value");
   auto enable_rectifying = declare_parameter<bool>("enable_rectifying");
   auto enable_compressing = declare_parameter<bool>("enable_compressing");
   auto use_default_device_settings = declare_parameter<bool>("use_default_device_settings");
@@ -86,11 +95,16 @@ CameraSettings ArenaCameraNode::get_camera_settings_from_params()
   auto exposure_auto_limit_auto = declare_parameter<bool>("exposure_auto_limit_auto");
   auto exposure_auto_lower_limit = declare_parameter<double>("exposure_auto_lower_limit");
   auto exposure_auto_upper_limit = declare_parameter<double>("exposure_auto_upper_limit");
+  auto exposure_damping = declare_parameter<double>("exposure_damping", desc_exposure_damping);
+  auto lut_enable = declare_parameter<bool>("lut_enable");
+  auto balance_white_auto = declare_parameter<bool>("balance_white_auto");
+  auto balance_ratio_selector = static_cast<uint32_t>(declare_parameter<int64_t>("balance_ratio_selector"));
+  auto balance_ratio = declare_parameter<double>("balance_ratio", desc_balance_ratio);
 
   CameraSettings camera_settings(
     camera_name, frame_id, pixel_format, serial_no, fps, horizontal_binning, vertical_binning,
-    camera_info_url, exposure_auto, exposure_value, gain_auto, gain_value, gamma_value,
-    enable_rectifying, enable_compressing, use_default_device_settings, use_ptp, target_brightness, exposure_auto_limit_auto, exposure_auto_lower_limit, exposure_auto_upper_limit);
+    camera_info_url, exposure_auto, exposure_value, gain_auto, gain_value,
+    enable_rectifying, enable_compressing, use_default_device_settings, use_ptp, target_brightness, exposure_auto_limit_auto, exposure_auto_lower_limit, exposure_auto_upper_limit, exposure_damping, lut_enable, balance_white_auto, balance_ratio_selector, balance_ratio);
 
   return camera_settings;
 }
@@ -291,14 +305,6 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       }
     }
 
-    if (param.get_name() == "gamma_value") {
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
-        m_arena_camera_handler->set_gamma_value(param.as_double());
-        result.successful = true;
-        print_status(param);
-      }
-    }
-
     if (param.get_name() == "use_default_device_settings") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
         m_arena_camera_handler->set_use_default_device_settings(param.as_bool());
@@ -334,6 +340,46 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
     if (param.get_name() == "exposure_auto_upper_limit") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
         m_arena_camera_handler->set_exposure_auto_upper_limit(param.as_double());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "exposure_damping") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
+        m_arena_camera_handler->set_exposure_damping(param.as_double());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "lut_enable") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
+        m_arena_camera_handler->set_lut_enable(param.as_bool());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "balance_white_auto") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
+        m_arena_camera_handler->set_balance_white_auto(param.as_bool());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "balance_ratio_selector") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
+        m_arena_camera_handler->set_balance_ratio_selector(param.as_int());
+        result.successful = true;
+        print_status(param);
+      }
+    }
+
+    if (param.get_name() == "balance_ratio") {
+      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
+        m_arena_camera_handler->set_balance_ratio(param.as_double());
         result.successful = true;
         print_status(param);
       }

@@ -44,7 +44,6 @@ void ArenaCamerasHandler::create_camera_from_settings(CameraSettings & camera_se
       this->set_exposure_value(camera_settings.exposure_value);
       this->set_auto_gain(camera_settings.gain_auto_enable);
       this->set_gain_value(camera_settings.gain_value);
-      this->set_gamma_value(camera_settings.gamma_value);
     }
 
     m_cameras = new ArenaCamera(m_device, camera_settings, m_ptp_status_);
@@ -267,71 +266,6 @@ void ArenaCamerasHandler::set_brightness(long brightness)
   }
 }
 
-void ArenaCamerasHandler::set_gamma_value(double gamma_value)
-{
-  if (m_use_default_device_settings) {
-    RCLCPP_WARN(
-      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
-      "Not possible to set gain value. Using default device settings.");
-    return;
-  }
-  try {
-    // Enable gamma correction if supported
-    GenApi::CBooleanPtr pGammaEnable = m_device->GetNodeMap()->GetNode("GammaEnable");
-
-    if (!pGammaEnable) {
-      RCLCPP_WARN(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "GammaEnable is not supported");
-      return;
-    }
-
-    if (!pGammaEnable->GetValue() && GenApi::IsWritable(pGammaEnable)) {
-      RCLCPP_INFO(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "GammaEnable is set to True");
-      pGammaEnable->SetValue(true);
-    }
-
-    // Adjust gamma value if writable
-    GenApi::CFloatPtr pGamma = m_device->GetNodeMap()->GetNode("Gamma");
-
-    if (!pGamma) {
-      RCLCPP_WARN(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Gamma is not supported");
-      return;
-    }
-
-    if (!GenApi::IsWritable(pGamma)) {
-      RCLCPP_WARN(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Gamma is not writable");
-      return;
-    }
-
-    // Get min and max gamma values
-    double min_gamma = pGamma->GetMin();
-    double max_gamma = pGamma->GetMax();
-    RCLCPP_INFO(
-      rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Allowed gamma value range: [%f, %f]", min_gamma,
-      max_gamma);
-
-    // Ensure gamma value is within valid range
-    if (gamma_value < min_gamma) {
-      gamma_value = min_gamma;
-      RCLCPP_INFO(
-        rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
-        "Gamma value below minimum (%f). Adjusted to minimum value.", min_gamma);
-    } else if (gamma_value > max_gamma) {
-      gamma_value = max_gamma;
-      RCLCPP_INFO(
-        rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
-        "Gamma value above maximum (%f). Adjusted to maximum value.", max_gamma);
-    }
-
-    // Set gamma value
-    pGamma->SetValue(gamma_value);
-    RCLCPP_INFO(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Gamma value set to %f", gamma_value);
-
-  } catch (const GenICam::GenericException & e) {
-    // Handle exceptions during gamma value handling
-    std::cerr << "Exception occurred during gamma value handling: " << e.GetDescription()
-              << std::endl;
-  }
-}
 void ArenaCamerasHandler::set_enable_rectifying(bool enable_rectifying)
 {
   this->m_enable_rectifying = enable_rectifying;
@@ -529,6 +463,153 @@ void ArenaCamerasHandler::set_exposure_auto_upper_limit(double exposure_auto_upp
     RCLCPP_ERROR(
       rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
       "Exception occurred during ExposureAutoUpperLimit handling: %s", e.GetDescription());
+  }
+}
+
+void ArenaCamerasHandler::set_exposure_damping(double exposure_damping)
+{
+  if (m_use_default_device_settings) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set exposure damping. Using default device settings.");
+    return;
+  }
+
+  // Check if exposure damping is supported
+  GenApi::CFloatPtr pExposureDamping = m_device->GetNodeMap()->GetNode("ExposureAutoDamping");
+  if (!pExposureDamping) {
+    RCLCPP_WARN(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "ExposureDamping is not supported");
+    return;
+  }
+
+  double exposure_damping_min = pExposureDamping->GetMin();
+  double exposure_damping_max = pExposureDamping->GetMax();
+  RCLCPP_INFO(
+    rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Allowed exposure damping range: [%lf, %lf]",
+    exposure_damping_min, exposure_damping_max);
+
+  try {
+    exposure_damping = std::clamp(exposure_damping, exposure_damping_min, exposure_damping_max);
+
+    pExposureDamping->SetValue(exposure_damping);
+    RCLCPP_INFO(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "ExposureDamping set to %lf", exposure_damping);
+  } catch (const GenICam::GenericException & e) {
+    // Handle exceptions during exposure damping handling
+    std::cerr << "Exception occurred during ExposureDamping handling: " << e.GetDescription()
+              << std::endl;
+    RCLCPP_ERROR(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Exception occurred during ExposureDamping handling: %s", e.GetDescription());
+  }
+}
+
+void ArenaCamerasHandler::set_lut_enable(bool lut_enable)
+{
+  if (m_use_default_device_settings) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set Look-Up Table (LUT). Using default device settings.");
+    return;
+  }
+  GenICam_3_3_LUCID::gcstring lut_setting = lut_enable ? "True" : "False" ;
+  Arena::SetNodeValue<bool>(m_device->GetNodeMap(), "LUTEnable", lut_setting);
+}
+
+GenICam_3_3_LUCID::gcstring ArenaCamerasHandler::get_balance_white_auto()
+{
+  return Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "BalanceWhiteAuto");
+}
+
+void ArenaCamerasHandler::set_balance_white_auto(bool balance_white_auto)
+{
+  if (m_use_default_device_settings) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set balance white auto. Using default device settings.");
+    return;
+  }
+  GenICam_3_3_LUCID::gcstring balance_white_auto_str =
+    balance_white_auto ? "Continuous" : "Off";
+
+  Arena::SetNodeValue<GenICam::gcstring>(
+    m_device->GetNodeMap(), "BalanceWhiteAuto", balance_white_auto_str);
+}
+
+void ArenaCamerasHandler::set_balance_ratio_selector(uint32_t balance_ratio_selector)
+{
+  if (m_use_default_device_settings) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set balance ratio selector. Using default device settings.");
+    return;
+  }
+
+  GenICam_3_3_LUCID::gcstring balance_ratio_selector_str;
+
+  switch (balance_ratio_selector) {
+    case 0:
+      balance_ratio_selector_str = "Red";
+      Arena::SetNodeValue<GenICam::gcstring>(
+        m_device->GetNodeMap(), "BalanceRatioSelector", balance_ratio_selector_str);
+      break;
+    case 1:
+      balance_ratio_selector_str = "Green";
+      Arena::SetNodeValue<GenICam::gcstring>(
+        m_device->GetNodeMap(), "BalanceRatioSelector", balance_ratio_selector_str);
+      break;
+    case 2:
+      balance_ratio_selector_str = "Blue";
+      Arena::SetNodeValue<GenICam::gcstring>(
+        m_device->GetNodeMap(), "BalanceRatioSelector", balance_ratio_selector_str);
+      break;
+    default:
+      RCLCPP_WARN(
+        rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+        "Invalid balance ratio selector. Please select from 0, 1, 2.");
+      return;
+  }
+}
+
+void ArenaCamerasHandler::set_balance_ratio(double balance_ratio)
+{
+  if (m_use_default_device_settings) {
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set balance ratio. Using default device settings.");
+    return;
+  }
+
+  // Get auto balance mode
+  const auto auto_balance = this->get_balance_white_auto();
+
+  // If auto balance is off, adjust balance ratio manually
+  GenApi::CFloatPtr pBalanceRatio = m_device->GetNodeMap()->GetNode("BalanceRatio");
+  double min_balance_ratio = pBalanceRatio->GetMin();
+  double max_balance_ratio = pBalanceRatio->GetMax();
+  RCLCPP_INFO(
+    rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Allowed balance ratio range: [%f, %f]", min_balance_ratio,
+    max_balance_ratio);
+
+  if (auto_balance == "Off") {
+    try {
+      balance_ratio = std::clamp(balance_ratio, min_balance_ratio, max_balance_ratio);
+
+      pBalanceRatio->SetValue(balance_ratio);
+      RCLCPP_INFO(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Balance ratio set to %f", balance_ratio);
+    } catch (const GenICam::GenericException & e) {
+      // Handle exceptions during balance ratio handling
+      std::cerr << "Exception occurred during balance ratio handling: " << e.GetDescription()
+                << std::endl;
+      RCLCPP_ERROR(
+        rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+        "Exception occurred during balance ratio handling: %s", e.GetDescription());
+    }
+  } else {
+    // If auto balance is enabled, cannot manually set balance ratio
+    RCLCPP_WARN(
+      rclcpp::get_logger("ARENA_CAMERA_HANDLER"),
+      "Not possible to set balance ratio when auto balance is enabled.");
   }
 }
 

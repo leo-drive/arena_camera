@@ -14,10 +14,11 @@ public:
     const std::string & camera_name, const std::string & frame_id, const std::string & pixel_format,
     uint32_t serial_no, uint32_t fps, uint32_t horizontal_binning, uint32_t vertical_binning,
     const std::string & url_camera_info, bool exposure_auto, double exposure_value, bool gain_auto,
-    double gain_value, double gamma_value, bool enable_rectifying, bool enable_compressing,
+    double gain_value, bool enable_rectifying, bool enable_compressing,
     bool use_default_device_settings, bool use_ptp, long target_brightness,
     bool exposure_auto_limit_auto, double exposure_auto_lower_limit,
-    double exposure_auto_upper_limit)
+    double exposure_auto_upper_limit, double exposure_damping, bool lut_enable,
+    bool balance_white_auto, uint32_t balance_ratio_selector, double balance_ratio)
 
   : camera_name{camera_name},
     frame_id{frame_id},
@@ -31,7 +32,6 @@ public:
     exposure_value{exposure_value},
     gain_auto_enable{gain_auto},
     gain_value{gain_value},
-    gamma_value{gamma_value},
     enable_rectifying{enable_rectifying},
     enable_compressing{enable_compressing},
     use_default_device_settings{use_default_device_settings},
@@ -39,7 +39,12 @@ public:
     target_brightness{target_brightness},
     exposure_auto_limit_auto{exposure_auto_limit_auto},
     exposure_auto_lower_limit{exposure_auto_lower_limit},
-    exposure_auto_upper_limit{exposure_auto_upper_limit}
+    exposure_auto_upper_limit{exposure_auto_upper_limit},
+    exposure_damping{exposure_damping},
+    lut_enable{lut_enable},
+    balance_white_auto{balance_white_auto},
+    balance_ratio_selector{balance_ratio_selector},
+    balance_ratio{balance_ratio}
   {
     std::stringstream output;
 
@@ -56,7 +61,6 @@ public:
            << "  Exposure Value: " << exposure_value << std::endl
            << "  Gain Auto: " << (gain_auto ? "On" : "Off") << std::endl
            << "  Gain Value: " << gain_value << std::endl
-           << "  Gamma Value: " << gamma_value << std::endl
            << "  Rectification Enabled: " << (enable_rectifying ? "Yes" : "No") << std::endl
            << "  Compression Enabled: " << (enable_compressing ? "Yes" : "No") << std::endl
            << "  Use Default Device Settings: " << (use_default_device_settings ? "Yes" : "No")
@@ -66,7 +70,14 @@ public:
            << "  Exposure Auto Limit Auto: " << (exposure_auto_limit_auto ? "Yes" : "No")
            << std::endl
            << "  Exposure Auto Lower Limit: " << exposure_auto_lower_limit << std::endl
-           << "  Exposure Auto Upper Limit: " << exposure_auto_upper_limit << std::endl;
+           << "  Exposure Auto Upper Limit: " << exposure_auto_upper_limit << std::endl
+           << "  Exposure Damping: " << exposure_damping << std::endl
+           << "  Look-up Table (LUT): " << (lut_enable ? "Yes" : "No")
+           << std::endl
+           << "  Balance White Auto: " << (lut_enable ? "On" : "Off")
+           << std::endl
+           << "  Balance Ratio Selector: " << balance_ratio_selector << std::endl
+           << "  Balance Ratio: " << balance_ratio << std::endl;
 
     std::cout << output.str();
   }
@@ -83,7 +94,6 @@ public:
   double exposure_value;
   bool gain_auto_enable;
   double gain_value;
-  double gamma_value;
   bool enable_rectifying;
   bool enable_compressing;
   bool use_default_device_settings;
@@ -92,6 +102,11 @@ public:
   bool exposure_auto_limit_auto;
   double exposure_auto_lower_limit;
   double exposure_auto_upper_limit;
+  double exposure_damping;
+  bool lut_enable;
+  bool balance_white_auto;
+  uint32_t balance_ratio_selector;
+  double balance_ratio;
 };
 }  // namespace arena_camera
 

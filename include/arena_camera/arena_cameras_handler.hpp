@@ -40,8 +40,6 @@ public:
 
   void set_brightness(long brightness);
 
-  void set_gamma_value(double gamma_value);
-
   void set_enable_rectifying(bool enable_rectifying);
 
   bool get_enable_rectifying();
@@ -67,6 +65,18 @@ public:
   void set_exposure_auto_lower_limit(double exposure_auto_lower_limit);
 
   void set_exposure_auto_upper_limit(double exposure_auto_upper_limit);
+
+  void set_exposure_damping(double exposure_damping);
+
+  void set_lut_enable(bool lut_enable);
+
+  GenICam_3_3_LUCID::gcstring get_balance_white_auto();
+
+  void set_balance_white_auto(bool balance_white_auto);
+
+  void set_balance_ratio_selector(uint32_t balance_ratio_selector);
+
+  void set_balance_ratio(double balance_ratio);
 
 private:
   ArenaCamera * m_cameras;
