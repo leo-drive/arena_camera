@@ -13,15 +13,18 @@
     use_ptp: true
     use_default_device_settings: false # If true, the rest will be ignored
     exposure_auto: false # If true, the following will be ignored
-    exposure_value: 900.0 # min: 87.0, max: 66000.0
+    exposure_value: 300.0 # min: 87.0, max: 66000.0
     exposure_auto_limit_auto: false # If true, the following 2 will be ignored
     exposure_auto_lower_limit: 3000.0 # min: 87.0
     exposure_auto_upper_limit: 10000.0 # max: 66000.0
-    exposure_damping: 20.0 # min: 0.0, max: 100.0
+    exposure_damping: 15.0 # min: 0.0, max: 100.0
     balance_white_auto: true # If true, the following 2 will be ignored
     balance_ratio_selector: 0 # 0: Red, 1: Green, 2: Blue
-    balance_ratio: 1.0 # min: 0.0, max: 99.0
+    balance_ratio: # min: 0.0, max: 99.0
+      red: 63.0
+      green: 30.0
+      blue: 35.0
     gain_auto: true # If true, the following will be ignored
     gain_value: 1.0 # min: 0.0, max: 42.0
-    target_brightness: 20
+    target_brightness: 35
     lut_enable: true

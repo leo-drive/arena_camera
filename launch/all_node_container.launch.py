@@ -217,13 +217,13 @@ def generate_launch_description():
   return LaunchDescription(
     [
       *launch_arguments,
-      container_fr,
+     # container_fr,
       container_ml,
-      container_f,
-      container_fl,
-      container_mr,
-      container_b,
-      container_br,
+     # container_f,
+     container_fl,
+     # container_mr,
+      #container_b,
+      # container_br,
       container_bl,
     ]
   )

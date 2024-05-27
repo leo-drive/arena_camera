@@ -18,8 +18,7 @@ public:
     bool use_default_device_settings, bool use_ptp, long target_brightness,
     bool exposure_auto_limit_auto, double exposure_auto_lower_limit,
     double exposure_auto_upper_limit, double exposure_damping, bool lut_enable,
-    bool balance_white_auto, uint32_t balance_ratio_selector, double balance_ratio)
-
+    bool balance_white_auto, uint32_t balance_ratio_selector, double balance_ratio_red, double balance_ratio_green, double balance_ratio_blue)
   : camera_name{camera_name},
     frame_id{frame_id},
     pixel_format{pixel_format},
@@ -44,7 +43,10 @@ public:
     lut_enable{lut_enable},
     balance_white_auto{balance_white_auto},
     balance_ratio_selector{balance_ratio_selector},
-    balance_ratio{balance_ratio}
+    //balance_ratio{balance_ratio},
+    balance_ratio_red{balance_ratio_red},
+    balance_ratio_green{balance_ratio_green},
+    balance_ratio_blue{balance_ratio_blue}
   {
     std::stringstream output;
 
@@ -77,7 +79,10 @@ public:
            << "  Balance White Auto: " << (lut_enable ? "On" : "Off")
            << std::endl
            << "  Balance Ratio Selector: " << balance_ratio_selector << std::endl
-           << "  Balance Ratio: " << balance_ratio << std::endl;
+           << "  Balance Ratio Red: " << balance_ratio_red << std::endl
+           << "  Balance Ratio Green: " << balance_ratio_green << std::endl
+           << "  Balance Ratio Blue: " << balance_ratio_blue << std::endl;
+
 
     std::cout << output.str();
   }
@@ -107,6 +112,9 @@ public:
   bool balance_white_auto;
   uint32_t balance_ratio_selector;
   double balance_ratio;
+  double balance_ratio_red;
+  double balance_ratio_green;
+  double balance_ratio_blue;
 };
 }  // namespace arena_camera
 

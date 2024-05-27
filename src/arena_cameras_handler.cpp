@@ -571,7 +571,7 @@ void ArenaCamerasHandler::set_balance_ratio_selector(uint32_t balance_ratio_sele
   }
 }
 
-void ArenaCamerasHandler::set_balance_ratio(double balance_ratio)
+void ArenaCamerasHandler::set_balance_ratio(double balance_ratio_red, double balance_ratio_green, double balance_ratio_blue)
 {
   if (m_use_default_device_settings) {
     RCLCPP_WARN(
@@ -579,7 +579,6 @@ void ArenaCamerasHandler::set_balance_ratio(double balance_ratio)
       "Not possible to set balance ratio. Using default device settings.");
     return;
   }
-
   // Get auto balance mode
   const auto auto_balance = this->get_balance_white_auto();
 
@@ -593,10 +592,23 @@ void ArenaCamerasHandler::set_balance_ratio(double balance_ratio)
 
   if (auto_balance == "Off") {
     try {
-      balance_ratio = std::clamp(balance_ratio, min_balance_ratio, max_balance_ratio);
+      // get the current balance ratio selector from the device
+        GenICam_3_3_LUCID::gcstring balance_ratio_selector_str =
+          Arena::GetNodeValue<GenICam::gcstring>(m_device->GetNodeMap(), "BalanceRatioSelector");
+      if (balance_ratio_selector_str== "Red"){
+        balance_ratio_red = std::clamp(balance_ratio_red, min_balance_ratio, max_balance_ratio);
+        pBalanceRatio->SetValue(balance_ratio_red);
+      }
+      if(balance_ratio_selector_str== "Green"){
+        balance_ratio_green = std::clamp(balance_ratio_green, min_balance_ratio, max_balance_ratio);
+        pBalanceRatio->SetValue(balance_ratio_green);
+      }
+      if(balance_ratio_selector_str== "Blue"){
+        balance_ratio_blue = std::clamp(balance_ratio_blue, min_balance_ratio, max_balance_ratio);
+        pBalanceRatio->SetValue(balance_ratio_blue);
+      }
 
-      pBalanceRatio->SetValue(balance_ratio);
-      RCLCPP_INFO(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Balance ratio set to %f", balance_ratio);
+      RCLCPP_INFO(rclcpp::get_logger("ARENA_CAMERA_HANDLER"), "Balance ratio set to %f", balance_ratio_red);
     } catch (const GenICam::GenericException & e) {
       // Handle exceptions during balance ratio handling
       std::cerr << "Exception occurred during balance ratio handling: " << e.GetDescription()

@@ -74,6 +74,21 @@ CameraSettings ArenaCameraNode::get_camera_settings_from_params()
   rcl_interfaces::msg::FloatingPointRange balance_ratio_range;
   balance_ratio_range.set__from_value(0).set__to_value(100).set__step(1.0);
   desc_balance_ratio.floating_point_range = {balance_ratio_range};
+// describe balance ratio range for each red, green and blue channel
+  auto desc_balance_ratio_red = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::FloatingPointRange balance_ratio_red_range;
+  balance_ratio_red_range.set__from_value(0).set__to_value(100).set__step(1.0);
+  desc_balance_ratio_red.floating_point_range = {balance_ratio_red_range};
+
+  auto desc_balance_ratio_green = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::FloatingPointRange balance_ratio_green_range;
+  balance_ratio_green_range.set__from_value(0).set__to_value(100).set__step(1.0);
+  desc_balance_ratio_green.floating_point_range = {balance_ratio_green_range};
+
+  auto desc_balance_ratio_blue = rcl_interfaces::msg::ParameterDescriptor{};
+  rcl_interfaces::msg::FloatingPointRange balance_ratio_blue_range;
+  balance_ratio_blue_range.set__from_value(0).set__to_value(100).set__step(1.0);
+  desc_balance_ratio_blue.floating_point_range = {balance_ratio_blue_range};
 
   auto camera_name = declare_parameter<std::string>("camera_name");
   auto frame_id = declare_parameter<std::string>("frame_id");
@@ -99,12 +114,16 @@ CameraSettings ArenaCameraNode::get_camera_settings_from_params()
   auto lut_enable = declare_parameter<bool>("lut_enable");
   auto balance_white_auto = declare_parameter<bool>("balance_white_auto");
   auto balance_ratio_selector = static_cast<uint32_t>(declare_parameter<int64_t>("balance_ratio_selector"));
-  auto balance_ratio = declare_parameter<double>("balance_ratio", desc_balance_ratio);
+
+  //auto balance_ratio = declare_parameter<double>("balance_ratio", desc_balance_ratio);
+  auto balance_ratio_red = declare_parameter<double>("balance_ratio.red", desc_balance_ratio_red);
+  auto balance_ratio_green = declare_parameter<double>("balance_ratio.green", desc_balance_ratio_green);
+  auto balance_ratio_blue = declare_parameter<double>("balance_ratio.blue", desc_balance_ratio_blue);
 
   CameraSettings camera_settings(
     camera_name, frame_id, pixel_format, serial_no, fps, horizontal_binning, vertical_binning,
     camera_info_url, exposure_auto, exposure_value, gain_auto, gain_value,
-    enable_rectifying, enable_compressing, use_default_device_settings, use_ptp, target_brightness, exposure_auto_limit_auto, exposure_auto_lower_limit, exposure_auto_upper_limit, exposure_damping, lut_enable, balance_white_auto, balance_ratio_selector, balance_ratio);
+    enable_rectifying, enable_compressing, use_default_device_settings, use_ptp, target_brightness, exposure_auto_limit_auto, exposure_auto_lower_limit, exposure_auto_upper_limit, exposure_damping, lut_enable, balance_white_auto, balance_ratio_selector, balance_ratio_red, balance_ratio_green, balance_ratio_blue);
 
   return camera_settings;
 }
@@ -124,29 +143,47 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, std::shared_ptr<
       RCLCPP_WARN_STREAM_THROTTLE(
         this->get_logger(), *this->get_clock(), 1000,
         "Check PTP Server. Status: " << image->ptp_status);
+      // ROS zamanı ve image timestamp arasındaki farkı hesaplama
+      rclcpp::Time ros_time = rclcpp::Clock().now();
+      rclcpp::Duration difference = ros_time - image_stamp;
+      auto nanoseconds_diff = difference.nanoseconds();
+
+      // Farkı saniye ve milisaniye olarak ayırma
+      auto seconds_diff = nanoseconds_diff / 1000000000;
+      auto milliseconds_diff = (nanoseconds_diff % 1000000000) / 1000000;
+
+      // İnsan tarafından okunabilir farkı ekrana yazdırma
+      std::cout << "Difference: ";
+      if (nanoseconds_diff >= 0) {
+        std::cout << "+";
+      } else {
+        std::cout << "-";
+      }
+      std::cout << std::abs(seconds_diff) << " seconds, " << std::setw(3) <<
+        milliseconds_diff << " milliseconds" << std::endl;
     } else {
       rclcpp::Time image_stamp = rclcpp::Time(image->image_timestamp_ns);
       header.stamp = image_stamp;
-      //        // ROS zamanını elde etme
+              // ROS zamanını elde etme
       rclcpp::Time ros_time = rclcpp::Clock().now();
-      //
-      //        // ROS zamanı ve image timestamp arasındaki farkı hesaplama
-      //        rclcpp::Duration difference = ros_time - image_stamp;
-      //        auto nanoseconds_diff = difference.nanoseconds();
-      //
-      //        // Farkı saniye ve milisaniye olarak ayırma
-      //        auto seconds_diff = nanoseconds_diff / 1000000000;
-      //        auto milliseconds_diff = (nanoseconds_diff % 1000000000) / 1000000;
-      //
-      //        // İnsan tarafından okunabilir farkı ekrana yazdırma
-      //        std::cout << "Difference: ";
-      //        if (nanoseconds_diff >= 0) {
-      //            std::cout << "+";
-      //        } else {
-      //            std::cout << "-";
-      //        }
-      //        std::cout << std::abs(seconds_diff) << " seconds, " << std::setw(3) <<
-      //        milliseconds_diff << " milliseconds" << std::endl;
+
+              // ROS zamanı ve image timestamp arasındaki farkı hesaplama
+              rclcpp::Duration difference = ros_time - image_stamp;
+              auto nanoseconds_diff = difference.nanoseconds();
+
+              // Farkı saniye ve milisaniye olarak ayırma
+              auto seconds_diff = nanoseconds_diff / 1000000000;
+              auto milliseconds_diff = (nanoseconds_diff % 1000000000) / 1000000;
+
+              // İnsan tarafından okunabilir farkı ekrana yazdırma
+              std::cout << "Difference: ";
+              if (nanoseconds_diff >= 0) {
+                  std::cout << "+";
+              } else {
+                  std::cout << "-";
+              }
+              std::cout << std::abs(seconds_diff) << " seconds, " << std::setw(3) <<
+              milliseconds_diff << " milliseconds" << std::endl;
 
       // Zaman damgasını elde etme
       auto nanoseconds = image_stamp.nanoseconds();
@@ -164,10 +201,10 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, std::shared_ptr<
       timeinfo = localtime(&rawtime);
 
       // İnsan tarafından okunabilir zamanı ekrana yazdırma
-      char buffer[80];
-      strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
-      // std::cout << "Human-readable Time: " << buffer << "." << std::setw(3) << milliseconds <<
-      // std::endl;
+//      char buffer[80];
+//      strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
+//      std::cout << "Human-readable Time: " << buffer << "." << std::setw(3) << milliseconds <<
+//      std::endl;
     }
   }
 
@@ -245,7 +282,9 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
     RCLCPP_INFO(this->get_logger(), "%s", parameter.get_name().c_str());
     RCLCPP_INFO(this->get_logger(), "%s", parameter.value_to_string().c_str());
   };
-
+  // create a vector to store the balance ratio values
+  std::vector<double> balance_ratio_values;
+  balance_ratio_values.resize(3);
   for (const auto & param : parameters) {
     if (param.get_name() == "fps") {
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_INTEGER) {
@@ -365,6 +404,7 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       if (param.get_type() == rclcpp::ParameterType::PARAMETER_BOOL) {
         m_arena_camera_handler->set_balance_white_auto(param.as_bool());
         result.successful = true;
+        std::cout << "BALANCE WHITE AUTO DEGISTI" << std::endl;
         print_status(param);
       }
     }
@@ -377,14 +417,32 @@ rcl_interfaces::msg::SetParametersResult ArenaCameraNode::parameters_callback(
       }
     }
 
-    if (param.get_name() == "balance_ratio") {
-      if (param.get_type() == rclcpp::ParameterType::PARAMETER_DOUBLE) {
-        m_arena_camera_handler->set_balance_ratio(param.as_double());
-        result.successful = true;
-        print_status(param);
-      }
-    }
+    if (param.get_name() == "balance_ratio_selector"|| param.get_name() == "balance_ratio.red" || param.get_name() == "balance_ratio.green" || param.get_name() == "balance_ratio.blue") {
 
+        if(param.get_type()== rclcpp::ParameterType::PARAMETER_DOUBLE || param.get_type()== rclcpp::ParameterType::PARAMETER_INTEGER)
+        {
+          std::cout << "BALANCE DEGERI ELSE doube imis AFERIN" << std::endl;
+
+         // set the red, green and blue values as 0=red, 1=green and 2=blue and push the balance_ratio_values vector separately
+          if(param.get_name() == "balance_ratio.red")
+          {
+            balance_ratio_values[0] = param.as_double();
+          }
+          else if(param.get_name() == "balance_ratio.green")
+          {
+            balance_ratio_values[1] = param.as_double();
+          }
+          else if(param.get_name() == "balance_ratio.blue")
+          {
+            balance_ratio_values[2] = param.as_double();
+          }
+          // set the balance ratio values
+          m_arena_camera_handler->set_balance_ratio(balance_ratio_values[0], balance_ratio_values[1], balance_ratio_values[2]);
+          result.successful = true;
+
+          print_status(param);
+        }
+     }
   }
 
   return result;

@@ -76,7 +76,7 @@ public:
 
   void set_balance_ratio_selector(uint32_t balance_ratio_selector);
 
-  void set_balance_ratio(double balance_ratio);
+  void set_balance_ratio(double balance_ratio_red, double balance_ratio_green, double balance_ratio_blue);
 
 private:
   ArenaCamera * m_cameras;
