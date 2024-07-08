@@ -143,68 +143,9 @@ void ArenaCameraNode::publish_image(std::uint32_t camera_index, std::shared_ptr<
       RCLCPP_WARN_STREAM_THROTTLE(
         this->get_logger(), *this->get_clock(), 1000,
         "Check PTP Server. Status: " << image->ptp_status);
-      // ROS zamanı ve image timestamp arasındaki farkı hesaplama
-      rclcpp::Time ros_time = rclcpp::Clock().now();
-      rclcpp::Duration difference = ros_time - image_stamp;
-      auto nanoseconds_diff = difference.nanoseconds();
-
-      // Farkı saniye ve milisaniye olarak ayırma
-      auto seconds_diff = nanoseconds_diff / 1000000000;
-      auto milliseconds_diff = (nanoseconds_diff % 1000000000) / 1000000;
-
-      // İnsan tarafından okunabilir farkı ekrana yazdırma
-      std::cout << "Difference: ";
-      if (nanoseconds_diff >= 0) {
-        std::cout << "+";
-      } else {
-        std::cout << "-";
-      }
-      std::cout << std::abs(seconds_diff) << " seconds, " << std::setw(3) <<
-        milliseconds_diff << " milliseconds" << std::endl;
     } else {
       rclcpp::Time image_stamp = rclcpp::Time(image->image_timestamp_ns);
       header.stamp = image_stamp;
-              // ROS zamanını elde etme
-      rclcpp::Time ros_time = rclcpp::Clock().now();
-
-              // ROS zamanı ve image timestamp arasındaki farkı hesaplama
-              rclcpp::Duration difference = ros_time - image_stamp;
-              auto nanoseconds_diff = difference.nanoseconds();
-
-              // Farkı saniye ve milisaniye olarak ayırma
-              auto seconds_diff = nanoseconds_diff / 1000000000;
-              auto milliseconds_diff = (nanoseconds_diff % 1000000000) / 1000000;
-
-              // İnsan tarafından okunabilir farkı ekrana yazdırma
-              std::cout << "Difference: ";
-              if (nanoseconds_diff >= 0) {
-                  std::cout << "+";
-              } else {
-                  std::cout << "-";
-              }
-              std::cout << std::abs(seconds_diff) << " seconds, " << std::setw(3) <<
-              milliseconds_diff << " milliseconds" << std::endl;
-
-      // Zaman damgasını elde etme
-      auto nanoseconds = image_stamp.nanoseconds();
-      auto seconds = nanoseconds / 1000000000;
-      auto milliseconds = (nanoseconds % 1000000000) / 1000000;
-
-      // struct timespec nesnesi oluşturma
-      struct timespec ts;
-      ts.tv_sec = seconds;
-      ts.tv_nsec = milliseconds * 1000000;
-
-      // struct timespec'i tm struct'ına dönüştürme
-      struct tm * timeinfo;
-      time_t rawtime = ts.tv_sec;
-      timeinfo = localtime(&rawtime);
-
-      // İnsan tarafından okunabilir zamanı ekrana yazdırma
-//      char buffer[80];
-//      strftime(buffer, 80, "%Y-%m-%d %H:%M:%S", timeinfo);
-//      std::cout << "Human-readable Time: " << buffer << "." << std::setw(3) << milliseconds <<
-//      std::endl;
     }
   }
 

@@ -82,9 +82,6 @@ public:
            << "  Balance Ratio Red: " << balance_ratio_red << std::endl
            << "  Balance Ratio Green: " << balance_ratio_green << std::endl
            << "  Balance Ratio Blue: " << balance_ratio_blue << std::endl;
-
-
-    std::cout << output.str();
   }
 
   std::string url_camera_info;
